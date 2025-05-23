@@ -83,6 +83,7 @@ CFG.AMD = CN()
 CFG.AMD.M_LAYERS = [5]  # manipulating layers
 CFG.AMD.ALIGN_TYPE = 'mse'  # 'cosine', 'mse', 'both'
 CFG.AMD.INPUT_SIZE = [224, 224]
+CFG.AMD.FEAT_DETACH = False
 CFG.AMD.AF = CN()
 CFG.AMD.AF.ENABLE = True
 CFG.AMD.AF.ARTIFACT_NORM = False

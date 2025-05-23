@@ -30,6 +30,8 @@ class AMD_RECON(Distiller):
         self.af_recon_type = cfg.AMD.AF.RECON.TYPE
         self.af_artifact_norm = cfg.AMD.AF.ARTIFACT_NORM
         
+        self.feature_detach = cfg.AMD.FEAT_DETACH
+        
         # Adapters from Student to Teacher
         self.adapter_dict = nn.ModuleDict({
             **{
@@ -94,15 +96,16 @@ class AMD_RECON(Distiller):
                     ignore_outliers = not self.af_artifact_norm
                     reconstructor = self.reconstructor_dict[f"recon_mha_{m_l:03d}"]
                     (recon_f_t, _) , outlier_mask, _ = reconstructor(f_t, outlier_mask, ignore_outliers=ignore_outliers)
+                    distill_f_t = recon_f_t.clone().detach() if self.feature_detach else recon_f_t.clone()
                     proj_f_s = self.adapter_dict[f"adapter_{m_l:03d}"](f_s)
                     match self.align_type:
                         case 'cosine':
-                            loss_feat = loss_feat + 0.5 * (1 - F.cosine_similarity(proj_f_s, recon_f_t, dim=-1).mean())
+                            loss_feat = loss_feat + 0.5 * (1 - F.cosine_similarity(proj_f_s, distill_f_t, dim=-1).mean())
                         case 'mse':
-                            loss_feat = loss_feat + F.mse_loss(proj_f_s, recon_f_t)
+                            loss_feat = loss_feat + F.mse_loss(proj_f_s, distill_f_t)
                         case 'both':
-                            loss_feat = loss_feat + (0.5 * (1 - F.cosine_similarity(proj_f_s, recon_f_t, dim=-1).mean())
-                                                    + F.mse_loss(proj_f_s, recon_f_t))
+                            loss_feat = loss_feat + (0.5 * (1 - F.cosine_similarity(proj_f_s, distill_f_t, dim=-1).mean())
+                                                    + F.mse_loss(proj_f_s, distill_f_t))
                         case _:
                             raise NotImplementedError(self.align_type)
                     outlier_bool_mask = outlier_mask.bool().squeeze()
