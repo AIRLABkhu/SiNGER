@@ -30,7 +30,7 @@ class AMD_RECON(Distiller):
         self.af_recon_type = cfg.AMD.AF.RECON.TYPE
         self.af_artifact_norm = cfg.AMD.AF.ARTIFACT_NORM
         
-        self.feature_detach = cfg.AMD.FEAT_DETACH
+        self.feature_detach = cfg.AMD.LOSS.DETACH_REFINER
         
         # Adapters from Student to Teacher
         self.adapter_dict = nn.ModuleDict({
