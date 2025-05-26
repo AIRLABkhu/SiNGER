@@ -17,21 +17,6 @@ from tools.lineval.ade20k import (
 )
 
 
-def compute_semseg_metrics(pred, gt):
-    """
-    pred: torch.Tensor of shape (B, C, H, W), float type
-    gt: torch.Tensor of shape (B, H, W), long type
-    mask: optional torch.BoolTensor of shape (B, H, W)
-    Returns: dict with average metrics over batch
-    """
-    pred = pred.float()
-    gt = gt.long()
-    miou = MulticlassJaccardIndex(150, ignore_index=-1)
-
-    return {
-        'mIoU': miou(pred, gt).item()*100.0,
-    }
-
 
 def main(args: Namespace):
     DEVICE = args.device
@@ -60,9 +45,11 @@ def main(args: Namespace):
     }
     print(head.load_state_dict(head_state_dict))
     
+    miou = MulticlassJaccardIndex(150, ignore_index=-1)
+    
     # Training Loop
     with tqdm(test_loader, desc=f' TEST', dynamic_ncols=True) as bar, torch.no_grad():
-        total_loss, preds_all, targets_all = 0, [], []
+        total_loss, total = 0, 0
         for input, target in bar:
             target = target.long()
             x = model.forward(input.cuda(DEVICE))[1]['feats'][-1]
@@ -71,15 +58,13 @@ def main(args: Namespace):
             
             batch_size = input.size(0)
             total_loss += loss.cpu().item() * batch_size
-            preds_all.append(pred_logit.cpu())
-            targets_all.append(target.cpu())
-        
-    preds = torch.cat(preds_all, dim=0)
-    targets = torch.cat(targets_all, dim=0)
-    mean_loss = total_loss / len(preds)
+            total += batch_size
+            miou.update(pred_logit.cpu(), target.cpu())
     
-    metrics = compute_semseg_metrics(preds, targets)
-    metrics['loss'] = mean_loss
+    metrics = {
+        'miou': miou.compute(),
+        'loss': total_loss / batch_size,
+    }
     max_key_len = max(map(len, metrics.keys()))
     for key, val in metrics.items():
         print(f'{key:<{max_key_len}}: {val:.4f}')
