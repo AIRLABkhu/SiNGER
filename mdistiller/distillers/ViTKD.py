@@ -60,6 +60,9 @@ class ViTKD(Distiller):
             f'{lidx:02d}': Generator(feat_t_shapes[lidx][-1])
             for lidx in self.m_layers
         })
+        self.mask_tokens = nn.Parameter(
+            torch.zeros(1, 1, self.teacher.embed_dim)
+        )
 
     def get_learnable_parameters(self):
         yield from super().get_learnable_parameters()
@@ -84,10 +87,15 @@ class ViTKD(Distiller):
         for layer in self.m_layers:
             adapter = self.adapters[f'{layer:02d}']
             generator = self.generators[f'{layer:02d}']
-            a_s = adapter(feature_student['feats'][layer])
-            g_s = generator(a_s)
+            
             mask = torch.rand_like(g_s[..., 0:1], device=g_s.device) <= self.masking_ratio
             mask = mask.expand_as(g_s)
+            
+            a_s = adapter(feature_student['feats'][layer])
+            mask_tokens = self.mask_tokens.expand_as(a_s)
+            m_s = torch.where(mask, mask_tokens, a_s)
+            
+            g_s = generator(m_s)
             loss = loss + F.mse_loss(
                 g_s[mask], feature_teacher['feats'][layer][mask],
             )
