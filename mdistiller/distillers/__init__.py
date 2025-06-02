@@ -13,6 +13,7 @@ from .VID import VID
 from .ReviewKD import ReviewKD
 from .DKD import DKD
 from .FitViT import FitViT
+from .ViTKD import ViTKD
 from .AMD_mask import AMD_MASK
 from .AMD_recon import AMD_RECON
 from .AMD_norm import AMD_NORM
@@ -33,6 +34,7 @@ distiller_dict = {
     "REVIEWKD": ReviewKD,
     "DKD": DKD,
     "FITVIT": FitViT,
+    "VITKD": ViTKD,
     "AMD_MASK": AMD_MASK,
     "AMD_RECON": AMD_RECON,
     "AMD_NORM": AMD_NORM,
