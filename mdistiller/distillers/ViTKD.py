@@ -88,10 +88,10 @@ class ViTKD(Distiller):
             adapter = self.adapters[f'{layer:02d}']
             generator = self.generators[f'{layer:02d}']
             
-            mask = torch.rand_like(g_s[..., 0:1], device=g_s.device) <= self.masking_ratio
-            mask = mask.expand_as(g_s)
-            
             a_s = adapter(feature_student['feats'][layer])
+            mask = torch.rand_like(a_s[..., 0:1], device=a_s.device) <= self.masking_ratio
+            mask = mask.expand_as(a_s)
+            
             mask_tokens = self.mask_tokens.expand_as(a_s)
             m_s = torch.where(mask, mask_tokens, a_s)
             
