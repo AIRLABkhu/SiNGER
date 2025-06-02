@@ -18,6 +18,9 @@ def dump_cfg(cfg, show: bool=False):
     if distiller_type in cfg:
         dump.update({distiller_type: cfg.get(distiller_type)})
     
+    if (distiller_type == 'VITKD') and cfg.VITKD.REF_AMD:
+        dump.update({'AMD': cfg.get('AMD')})
+    
     if show:
         print(log_msg("CONFIG:\n{}".format(dump.dump()), "INFO"))
     return dump
@@ -97,6 +100,14 @@ CFG.AMD.LOSS.RECON_WEIGHT = 1.0
 CFG.AMD.LOSS.FEAT_WEIGHT = 100.0
 CFG.AMD.LOSS.DETACH_REFINER = False
 
+
+# ViTKD CFG
+CFG.VITKD = CN()
+CFG.VITKD.INPUT_SIZE = [224, 224]
+CFG.VITKD.REF_AMD = True
+CFG.VITKD.M_LAYERS = [5]
+CFG.VITKD.LAYERS = [3]
+CFG.VITKD.MASKING_RATIO = 0.5
 
 # KD CFG
 CFG.KD = CN()
