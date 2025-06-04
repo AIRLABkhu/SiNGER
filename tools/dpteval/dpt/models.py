@@ -8,6 +8,7 @@ from .blocks import (
     FeatureFusionBlock_custom,
     Interpolate,
     _make_encoder,
+    _make_encoder_from_chekcpoint,
     forward_vit,
 )
 
@@ -27,6 +28,7 @@ class DPT(BaseModel):
     def __init__(
         self,
         head,
+        checkpoint=None,
         features=256,
         backbone="vitb_rn50_384",
         readout="project",
@@ -44,19 +46,30 @@ class DPT(BaseModel):
             "vitb16_384": [2, 5, 8, 11],
             "vitl16_384": [5, 11, 17, 23],
         }
-
-        # Instantiate backbone and reassemble blocks
-        self.pretrained, self.scratch = _make_encoder(
-            backbone,
-            features,
-            False,  # Set to true of you want to train from scratch, uses ImageNet weights
-            groups=1,
-            expand=False,
-            exportable=False,
-            hooks=hooks[backbone],
-            use_readout=readout,
-            enable_attention_hooks=enable_attention_hooks,
-        )
+        if checkpoint is not None: # for load our student
+            self.pretrained, self.scratch = _make_encoder_from_chekcpoint(
+                checkpoint,
+                features,
+                groups=1,
+                expand=False,
+                exportable=False,
+                hooks=[2, 5, 8, 11],
+                use_readout=readout,
+                enable_attention_hooks=enable_attention_hooks,
+            )
+        else:
+            # Instantiate backbone and reassemble blocks
+            self.pretrained, self.scratch = _make_encoder(
+                backbone,
+                features,
+                False,  # Set to true of you want to train from scratch, uses ImageNet weights
+                groups=1,
+                expand=False,
+                exportable=False,
+                hooks=hooks[backbone],
+                use_readout=readout,
+                enable_attention_hooks=enable_attention_hooks,
+            )
 
         self.scratch.refinenet1 = _make_fusion_block(features, use_bn)
         self.scratch.refinenet2 = _make_fusion_block(features, use_bn)
@@ -84,7 +97,21 @@ class DPT(BaseModel):
         out = self.scratch.output_conv(path_1)
 
         return out
-
+    
+    def get_decoder_named_parameters(self):
+        decoder_prefixes = [
+            "scratch.",
+            "pretrained.act_postprocess1.",
+            "pretrained.act_postprocess2.",
+            "pretrained.act_postprocess3.",
+            "pretrained.act_postprocess4.",
+        ]
+        return [
+            (name, param)
+            for name, param in self.named_parameters()
+            if any(name.startswith(prefix) for prefix in decoder_prefixes)
+        ]
+    
 
 class DPTDepthModel(DPT):
     def __init__(
