@@ -5,9 +5,11 @@ from .vit import (
     _make_pretrained_vitb_rn50_384,
     _make_pretrained_vitl16_384,
     _make_pretrained_vitb16_384,
+    _make_vit_b16_backbone,
     forward_vit,
 )
 
+from tools.lineval.utils import load_from_checkpoint, get_config
 
 def _make_encoder(
     backbone,
@@ -60,6 +62,46 @@ def _make_encoder(
     else:
         print(f"Backbone '{backbone}' not implemented")
         assert False
+
+    return pretrained, scratch
+    
+    
+def _make_encoder_from_chekcpoint(
+    checkpoint,
+    features,
+    groups=1,
+    expand=False,
+    exportable=True,
+    hooks=None,
+    use_vit_only=False,
+    use_readout="ignore",
+    enable_attention_hooks=False,
+):
+    model, result = load_from_checkpoint(checkpoint, tag='latest')
+    cfg, _  = get_config(checkpoint, 'latest')
+    
+    if 'tiny' in cfg.DISTILLER.STUDENT:
+        vit_features = 192
+    elif 'small' in cfg.DISTILLER.STUDENT:
+        vit_features = 384
+    elif 'base' in cfg.DISTILLER.STUDENT:
+        vit_features = 768
+    else:
+        raise ValueError(f"Unsupported student model: {cfg.DISTILLER.STUDENT}")
+    
+    res_features = [vit_features // 8, vit_features // 4, vit_features // 2 , vit_features]
+    pretrained = _make_vit_b16_backbone(
+        model, 
+        features = res_features,
+        size = cfg.AMD.INPUT_SIZE,
+        hooks = [2, 5, 8, 11],
+        vit_features = vit_features,
+        use_readout=use_readout,
+        enable_attention_hooks=enable_attention_hooks,
+    )
+    scratch = _make_scratch(
+        res_features, features, groups=groups, expand=expand
+    )
 
     return pretrained, scratch
 
