@@ -173,6 +173,8 @@ def _create_vision_transformer(variant: str, pretrained: bool = False, **kwargs)
         # FIXME Google FlexiViT pretrained models have a strong preference for bilinear patch / embed
         # interpolation, other pretrained models resize better w/ anti-aliased bicubic interpolation.
         _filter_fn = partial(checkpoint_filter_fn, interpolation='bilinear', antialias=False)
+    elif 'deit3' in variant:
+        _filter_fn = partial(checkpoint_filter_fn, adapt_layer_scale=True)
     else:
         _filter_fn = checkpoint_filter_fn
 
