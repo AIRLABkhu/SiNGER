@@ -70,7 +70,7 @@ def main(args: Namespace):
     else:
         model, _ = load_from_checkpoint(args.expname, tag=args.tag)
     model: ModelBase = model.cuda(DEVICE)
-    head = DepthEstimator(model.embed_dim, upsample_factor=16).cuda(DEVICE)
+    head = DepthEstimator(model.embed_dim, upsample_factor=args.upsample_factor).cuda(DEVICE)
     
     head_state_dict = load_head_checkpoint(
         args.expname, tag=args.tag, 
@@ -87,7 +87,7 @@ def main(args: Namespace):
     with tqdm(test_loader, desc=f' TEST', dynamic_ncols=True) as bar, torch.no_grad():
         total_loss, preds_all, targets_all = 0, [], []
         for input, target in bar:
-            input, target = crop_resize(input, target, size=224, random_crop=False)
+            input, target = crop_resize(input, target, size=args.img_size, random_crop=False)
             x = model.forward(input.cuda(DEVICE))[1]['feats'][-1]
             pred_logit = head(x) # (B, 256, H, W)
             pred_depth = depth_from_logit(pred_logit, temperature=args.temperature)

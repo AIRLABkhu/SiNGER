@@ -41,7 +41,7 @@ def main(args: Namespace):
     # DataLoaders, Models
     _, test_loader, _ = get_imagenet_dataloaders(
         1, args.batch_size,
-        args.num_workers, use_ddp=False,
+        args.num_workers, use_ddp=False, img_size=args.img_size,
     )
     if args.timm_model is not None:
         print(f"Loading {args.timm_model} from timm")

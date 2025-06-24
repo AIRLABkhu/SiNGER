@@ -24,7 +24,7 @@ def main(args: Namespace):
     # DataLoaders, Models
     _, test_loader, _ = get_ade20k_dataloaders(
         1, args.batch_size,
-        args.num_workers, use_ddp=False,
+        args.num_workers, use_ddp=False, img_size=args.img_size,
     )
     if args.timm_model is not None:
         print(f"Loading {args.timm_model} from timm")
@@ -32,7 +32,7 @@ def main(args: Namespace):
     else:
         model, _ = load_from_checkpoint(args.expname, tag=args.tag)
     model: ModelBase = model.cuda(DEVICE)
-    head = SemSegHead(model.embed_dim, upsample_factor=16).cuda(DEVICE)
+    head = SemSegHead(model.embed_dim, upsample_factor=args.upsample_factor).cuda(DEVICE)
     
     head_state_dict = load_head_checkpoint(
         args.expname, tag=args.tag, 

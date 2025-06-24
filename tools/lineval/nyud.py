@@ -253,4 +253,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         pass
     finally:
+        torch.cuda.synchronize()
+        torch.cuda.empty_cache()
         dist.destroy_process_group()
