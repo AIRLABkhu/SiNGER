@@ -69,7 +69,7 @@ def main(args: Namespace):
     # DataLoaders, Models
     train_loader, test_loader, _ = get_ade20k_dataloaders(
         args.batch_size//world_size, args.test_batch_size//world_size,
-        args.num_workers, use_ddp=True,
+        args.num_workers, use_ddp=True, img_size=args.img_size,
     )
     if args.timm_model is not None:
         print(f"Loading {args.timm_model} from timm")
@@ -77,7 +77,7 @@ def main(args: Namespace):
     else:
         model, _ = load_from_checkpoint(args.expname, tag=args.tag)
     model: ModelBase = model.cuda(DEVICE)
-    head = SemSegHead(model.embed_dim, upsample_factor=16).cuda(DEVICE)
+    head = SemSegHead(model.embed_dim, upsample_factor=args.upsample_factor).cuda(DEVICE)
     
     for param in head.parameters():
         param.data = param.data.contiguous()

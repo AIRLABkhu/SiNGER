@@ -104,6 +104,8 @@ def init_parser(
     parser.add_argument('--batch-size', '-bs', type=int, default=512)
     parser.add_argument('--test-batch-size', '-tbs', type=int, default=512)
     parser.add_argument('--num-workers', '-nw', type=int, default=8)
+    parser.add_argument('--img-size', '-is', type=int, default=224)
+    parser.add_argument('--upsample-factor', '-uf', type=int, default=16)
     # optimizer
     parser.add_argument('--epochs', '-e', type=int, default=5)
     parser.add_argument('--learning-rate', '-lr', type=float, default=0.1)
