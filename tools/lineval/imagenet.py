@@ -56,7 +56,7 @@ def main(args: Namespace):
     # DataLoaders, Models
     train_loader, test_loader, _ = get_imagenet_dataloaders(
         args.batch_size//world_size, args.test_batch_size//world_size,
-        args.num_workers, use_ddp=True,
+        args.num_workers, use_ddp=True, img_size=args.img_size,
     )
     if args.timm_model is not None:
         if IS_MASTER:

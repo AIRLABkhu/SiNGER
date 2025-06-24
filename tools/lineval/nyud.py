@@ -121,7 +121,7 @@ def main(args: Namespace):
         model, _ = load_from_checkpoint(args.expname, tag=args.tag)
     model: ModelBase = model.cuda(DEVICE)
     depth_resolution = 256
-    head = DepthEstimator(model.embed_dim, upsample_factor=16).cuda(DEVICE)
+    head = DepthEstimator(model.embed_dim, upsample_factor=args.upsample_factor).cuda(DEVICE)
     
     model = nn.parallel.DistributedDataParallel(model, device_ids=[rank], find_unused_parameters=True)
     head = nn.parallel.DistributedDataParallel(head, device_ids=[rank])
@@ -144,7 +144,7 @@ def main(args: Namespace):
         with tqdm(train_loader, desc=f'TRAIN {epoch+1}', dynamic_ncols=True, disable=not IS_MASTER) as bar:
             total_loss, total_rmse, total = 0, 0, 0
             for input, target in bar:
-                input, target = crop_resize(input, target, size=224, random_crop=True)
+                input, target = crop_resize(input, target, size=args.img_size, random_crop=True)
                 with torch.no_grad():
                     x = model.forward(input.cuda(DEVICE))[1]['feats'][-1]
                 pred_logit = head(x) # (B, 256, H, W)
@@ -180,7 +180,7 @@ def main(args: Namespace):
         with tqdm(test_loader, desc=f' TEST {epoch+1}', dynamic_ncols=True, disable=not IS_MASTER) as bar, torch.no_grad():
             total_loss, total_rmse, total = 0, 0, 0
             for input, target in bar:
-                input, target = crop_resize(input, target, size=224, random_crop=False)
+                input, target = crop_resize(input, target, size=args.img_size, random_crop=False)
                 x = model.forward(input.cuda(DEVICE))[1]['feats'][-1]
                 pred_logit = head(x) # (B, 256, H, W)
                 pred_depth = depth_from_logit(pred_logit)

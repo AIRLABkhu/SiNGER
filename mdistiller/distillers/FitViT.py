@@ -34,9 +34,9 @@ class FitViT(Distiller):
             feat_s_shapes[self.hint_layer][-1], feat_t_shapes[self.hint_layer][-1]
         )
 
-        self.af_enabled = cfg.AF.ENABLE
-        self.af_type = cfg.AF.CRITERIA.TYPE
-        self.af_threshold = cfg.AF.CRITERIA.THRES
+        self.af_enabled = cfg.FITNET.AF.ENABLE
+        self.af_type = cfg.FITNET.AF.CRITERIA.TYPE
+        self.af_threshold = cfg.FITNET.AF.CRITERIA.THRES
 
     def get_learnable_parameters(self):
         return super().get_learnable_parameters() + list(self.adapter.parameters())
