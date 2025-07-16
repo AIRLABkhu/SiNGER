@@ -17,6 +17,7 @@ from .ViTKD import ViTKD
 from .AMD_mask import AMD_MASK
 from .AMD_recon import AMD_RECON
 from .AMD_norm import AMD_NORM
+from .AMD_SNER import AMD_SNER
 
 distiller_dict = {
     "NONE": Vanilla,
@@ -38,4 +39,5 @@ distiller_dict = {
     "AMD_MASK": AMD_MASK,
     "AMD_RECON": AMD_RECON,
     "AMD_NORM": AMD_NORM,
+    "AMD_SNER": AMD_SNER,
 }

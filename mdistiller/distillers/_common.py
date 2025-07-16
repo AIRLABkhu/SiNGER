@@ -262,3 +262,48 @@ class Lambda(nn.Module):
     
     def forward(self, *args, **kwargs):
         return self.fn(*args, **kwargs)
+
+# for SNER ---------------------------------------------------------------------------------------------------------
+class SNERAdapter(nn.Module):
+    def __init__(self, W: torch.Tensor, rank: int = 32):
+        super().__init__()
+        self.rank = rank
+        self.W_shape = W.shape
+
+        # placeholder for weights (initialized in setup)
+        self.W_d = nn.Parameter(torch.empty(W.shape[1], rank))
+        self.W_u = nn.Parameter(torch.empty(rank, W.shape[1]))
+        self._reset(W)
+
+    def _reset(self, W: torch.Tensor):
+        _, S, Vh = torch.linalg.svd(W, full_matrices=True)
+        N = Vh[S < 1e-3]
+        if N.size(0) == 0:
+            warnings.warn("No explicit null-space detected; using random basis.")
+            N = F.normalize(torch.randn(self.rank, W.size(0), device=W.device, dtype=W.dtype), dim=-1)
+        elif N.size(0) < self.rank:
+            pad_size = self.rank - N.size(0)
+            pad = F.normalize(torch.randn(pad_size, W.size(0), device=W.device, dtype=W.dtype), dim=-1)
+            N = torch.cat([N, pad], dim=0)
+        N = N[:self.rank]
+        with torch.no_grad():
+            self.W_d.copy_(N.t())
+            self.W_u.copy_(N)
+
+    def forward(self, A: torch.Tensor) -> torch.Tensor:
+        delta = (A @ self.W_d) @ self.W_u
+        return A + delta
+
+    @classmethod
+    def load_from_checkpoint(cls, path: str, W: torch.Tensor, rank: int = 32, map_location='cpu'):
+        """Checkpoint에 W_d, W_u가 있으면 로드, 아니면 SVD로 초기화."""
+        obj = cls(W, rank=rank)
+        try:
+            ckpt = torch.load(path, map_location=map_location)
+            obj.W_d.data.copy_(ckpt['W_d'].to(W.device))
+            obj.W_u.data.copy_(ckpt['W_u'].to(W.device))
+            print(f"✓ Loaded pretrained SNERAdapter from {path}")
+        except Exception as e:
+            print(f"⚠️ Checkpoint load failed: {e}")
+            print("→ Using SVD-based initialization instead.")
+        return obj
