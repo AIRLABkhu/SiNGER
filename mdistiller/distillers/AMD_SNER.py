@@ -82,8 +82,8 @@ class AMD_SNER(Distiller):
             cosine_sim = F.cosine_similarity(f_t_sner, f_t, dim=-1) 
             loss_info = loss_info + (1.0 - cosine_sim).mean() 
             # outlier loss
-            norms = patch_mod.norm(dim=-1)
-            q_threshold = torch.quantile(norms, self.outlier_q, dim=1, keepdim=True).detach()
+            norms = patch_mod.norm(dim=-1).detach()
+            q_threshold = torch.quantile(norms, self.outlier_q, dim=1, keepdim=True)
             outlier_norms = norms[norms > q_threshold]
             
             if outlier_norms.numel() > 0:
