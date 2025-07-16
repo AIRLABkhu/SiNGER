@@ -27,8 +27,6 @@ class AMD_SNER(Distiller):
         self.rank = cfg.AMD.SNER.RANK
         self.outlier_q = cfg.AMD.SNER.OUTLIER_Q
         self.m_layers = cfg.AMD.M_LAYERS + [len(self.teacher.get_layers()) - 1]
-        print("Teacher Layers: ", self.m_layers)
-        print("Student Layers: ", [m_l // 2 for m_l in self.m_layers])
         feat_s_shapes, feat_t_shapes = get_feat_shapes(
             self.student, self.teacher, cfg.AMD.INPUT_SIZE
         )
