@@ -35,7 +35,7 @@ def validate(val_loader, distiller):
     criterion = nn.CrossEntropyLoss()
     num_iter = len(val_loader)
     if IS_MASTER:
-        pbar = tqdm(range(num_iter), dynamic_ncols=True)
+        pbar = tqdm(range(num_iter), dynamic_ncols=True, disable=True)
 
     distiller.eval()
     with torch.no_grad():
