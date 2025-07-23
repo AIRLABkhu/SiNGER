@@ -279,7 +279,7 @@ class SNERAdapter(nn.Module):
       • method = "SNER"   : 영공간 기저를 그대로 사용 (기존 방식)
       • method = "random" : 영공간 차원과 동일한 크기의 무작위 기저 사용
     """
-    def __init__(self, W: torch.Tensor, rank: int = 16, method: str = "SNER"):
+    def __init__(self, W: torch.Tensor, rank: int = 16, method: str = "sner"):
         super().__init__()
         d = W.size(0)
         method = method.lower()
@@ -287,7 +287,7 @@ class SNERAdapter(nn.Module):
         small_indices = torch.nonzero(S < 1e-3, as_tuple=False).squeeze(-1)
         N_raw = U[:, small_indices].t()
         k = N_raw.size(0)
-        if method == "SNER":
+        if method == "sner":
             if k == 0:
                 warnings.warn("No explicit null-space detected; using random basis.")
                 N = F.normalize(torch.randn(rank, d, device=W.device, dtype=W.dtype), dim=-1)
@@ -298,12 +298,12 @@ class SNERAdapter(nn.Module):
                     N = torch.cat([N, pad], dim=0)
                 else:
                     N = N[:rank]
-        elif method == "RANDOM":
+        elif method == "random":
             rand_dim = k if k > 0 else rank
             N = F.normalize(torch.randn(rand_dim, d,
                                          device=W.device, dtype=W.dtype), dim=-1)
         else:
-            raise ValueError(f'Unsupported method "{method}". Use "SNER" or "random".')
+            raise ValueError(f'Unsupported method "{method}". Use "sner" or "random".')
 
         self.W_d = nn.Parameter(N.t().clone())   # [d, r]
         self.W_u = nn.Parameter(N.clone())       # [r, d]
