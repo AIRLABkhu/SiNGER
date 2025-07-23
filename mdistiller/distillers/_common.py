@@ -264,13 +264,12 @@ class Lambda(nn.Module):
         return self.fn(*args, **kwargs)
 
 def compute_mapped_layers(layers, teacher, student):
-    m_layers = layers + [len(teacher.get_layers()) - 1]
     t_layers = len(teacher.blocks)
     s_layers = len(student.blocks)
     map_fact = t_layers // s_layers
 
-    m_layers_stu = [l // map_fact for l in m_layers] if map_fact != 1 else m_layers
-    print(f"Distill Teacher {m_layers} to Student {m_layers_stu}")
+    m_layers_stu = [l // map_fact for l in layers] if map_fact != 1 else layers
+    print(f"Distill Teacher {layers} to Student {m_layers_stu}")
     return m_layers_stu
 
 # for SNER ---------------------------------------------------------------------------------------------------------
