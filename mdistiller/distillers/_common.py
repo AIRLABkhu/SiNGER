@@ -263,47 +263,54 @@ class Lambda(nn.Module):
     def forward(self, *args, **kwargs):
         return self.fn(*args, **kwargs)
 
+def compute_mapped_layers(layers, teacher, student):
+    m_layers = layers + [len(teacher.get_layers()) - 1]
+    t_layers = len(teacher.blocks)
+    s_layers = len(student.blocks)
+    map_fact = t_layers // s_layers
+
+    m_layers_stu = [l // map_fact for l in m_layers] if map_fact != 1 else m_layers
+    print(f"Distill Teacher {m_layers} to Student {m_layers_stu}")
+    return m_layers_stu
+
 # for SNER ---------------------------------------------------------------------------------------------------------
 class SNERAdapter(nn.Module):
-    def __init__(self, W: torch.Tensor, rank: int = 32):
+    """
+    Null-space LoRA 어댑터.
+      • method = "SNER"   : 영공간 기저를 그대로 사용 (기존 방식)
+      • method = "random" : 영공간 차원과 동일한 크기의 무작위 기저 사용
+    """
+    def __init__(self, W: torch.Tensor, rank: int = 16, method: str = "SNER"):
         super().__init__()
-        self.rank = rank
-        self.W_shape = W.shape
+        d = W.size(0)
+        method = method.lower()
+        U, S, _ = torch.linalg.svd(W, full_matrices=True)  # SVD 수행
+        small_indices = torch.nonzero(S < 1e-3, as_tuple=False).squeeze(-1)
+        N_raw = U[:, small_indices].t()
+        k = N_raw.size(0)
+        if method == "SNER":
+            if k == 0:
+                warnings.warn("No explicit null-space detected; using random basis.")
+                N = F.normalize(torch.randn(rank, d, device=W.device, dtype=W.dtype), dim=-1)
+            else:
+                N = N_raw
+                if k < rank:
+                    pad = F.normalize(torch.randn(rank - k, d, device=W.device, dtype=W.dtype), dim=-1)
+                    N = torch.cat([N, pad], dim=0)
+                else:
+                    N = N[:rank]
+        elif method == "RANDOM":
+            rand_dim = k if k > 0 else rank
+            N = F.normalize(torch.randn(rand_dim, d,
+                                         device=W.device, dtype=W.dtype), dim=-1)
+        else:
+            raise ValueError(f'Unsupported method "{method}". Use "SNER" or "random".')
 
-        # placeholder for weights (initialized in setup)
-        self.W_d = nn.Parameter(torch.empty(W.shape[1], rank))
-        self.W_u = nn.Parameter(torch.empty(rank, W.shape[1]))
-        self._reset(W)
-
-    def _reset(self, W: torch.Tensor):
-        _, S, Vh = torch.linalg.svd(W, full_matrices=True)
-        N = Vh[S < 1e-3]
-        if N.size(0) == 0:
-            warnings.warn("No explicit null-space detected; using random basis.")
-            N = F.normalize(torch.randn(self.rank, W.size(0), device=W.device, dtype=W.dtype), dim=-1)
-        elif N.size(0) < self.rank:
-            pad_size = self.rank - N.size(0)
-            pad = F.normalize(torch.randn(pad_size, W.size(0), device=W.device, dtype=W.dtype), dim=-1)
-            N = torch.cat([N, pad], dim=0)
-        N = N[:self.rank]
-        with torch.no_grad():
-            self.W_d.copy_(N.t())
-            self.W_u.copy_(N)
+        self.W_d = nn.Parameter(N.t().clone())   # [d, r]
+        self.W_u = nn.Parameter(N.clone())       # [r, d]
 
     def forward(self, A: torch.Tensor) -> torch.Tensor:
         delta = (A @ self.W_d) @ self.W_u
         return A + delta
 
-    @classmethod
-    def load_from_checkpoint(cls, path: str, W: torch.Tensor, rank: int = 32, map_location='cpu'):
-        """Checkpoint에 W_d, W_u가 있으면 로드, 아니면 SVD로 초기화."""
-        obj = cls(W, rank=rank)
-        try:
-            ckpt = torch.load(path, map_location=map_location)
-            obj.W_d.data.copy_(ckpt['W_d'].to(W.device))
-            obj.W_u.data.copy_(ckpt['W_u'].to(W.device))
-            print(f"✓ Loaded pretrained SNERAdapter from {path}")
-        except Exception as e:
-            print(f"⚠️ Checkpoint load failed: {e}")
-            print("→ Using SVD-based initialization instead.")
-        return obj
+

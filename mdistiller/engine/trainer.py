@@ -196,7 +196,7 @@ class BaseTrainer(object):
         num_iter = len(self.train_loader)
         pbar = range(num_iter)
         if IS_MASTER:
-            pbar = tqdm(pbar, dynamic_ncols=True)
+            pbar = tqdm(pbar, dynamic_ncols=True, disable=True)
 
         # train loops
         self.distiller.train()

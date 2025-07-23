@@ -132,3 +132,5 @@ download_ckpts/
 *temp*
 *recipe*
 mdistiller/models/*/checkpoints
+logs/
+.vscode/
