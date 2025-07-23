@@ -3,12 +3,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from ._base import Distiller
-from ._common import {
+from ._common import (
     get_feat_shapes,
     SimpleAdapter,
     make_zscore_mask,
     make_gaussian_std_mask,
-    compute_mapped_layers}
+    compute_mapped_layers
+)
 
 class AMD_MASK(Distiller):
     """Artifact Manipulating Distillation"""
