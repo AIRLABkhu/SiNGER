@@ -6,7 +6,7 @@ import torchvision.transforms as transforms
 from ._common import make_loader
 
 
-data_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../data/ImageNet')
+data_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../data/imagenet')
 
 
 class ImageNet(ImageFolder):
