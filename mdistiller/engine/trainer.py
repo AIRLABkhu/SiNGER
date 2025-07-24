@@ -55,7 +55,7 @@ class BaseTrainer(object):
         self.log_path = os.path.join(cfg.LOG.PREFIX, experiment_name)
         if IS_MASTER:
             if not os.path.exists(self.log_path):
-                os.makedirs(self.log_path)
+                os.makedirs(self.log_path, exist_ok=True)
             self.tf_writer = SummaryWriter(os.path.join(self.log_path, "train.events"))
         else:
             self.tf_writer = None

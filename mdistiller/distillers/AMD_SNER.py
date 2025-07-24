@@ -6,13 +6,15 @@ from ._base import Distiller
 from ._common import (
     get_feat_shapes, 
     SimpleAdapter, 
-    SNERAdapter
+    SNERAdapter,
+    compute_mapped_layers
 )
 
-def init_sner(model, layers, rank):
+def init_sner(model, layers, rank, sner_method):
     return nn.ModuleDict({
         **{
-                f"sner_{l:03d}": SNERAdapter((model.blocks[l].mlp.fc2.weight @ model.blocks[l].mlp.fc1.weight).detach(), rank=rank)
+                f"sner_{l:03d}": SNERAdapter((model.blocks[l].mlp.fc2.weight @ model.blocks[l].mlp.fc1.weight).t().detach(),
+                                             rank=rank, method=sner_method)
                 for l in layers
             }
     })
@@ -26,7 +28,9 @@ class AMD_SNER(Distiller):
         
         self.rank = cfg.AMD.SNER.RANK
         self.outlier_q = cfg.AMD.SNER.OUTLIER_Q
+        self.sner_method = cfg.AMD.SNER.METHOD
         self.m_layers = cfg.AMD.M_LAYERS + [len(self.teacher.get_layers()) - 1]
+        self.m_layers_stu = compute_mapped_layers(self.m_layers, self.teacher, self.student)
         feat_s_shapes, feat_t_shapes = get_feat_shapes(
             self.student, self.teacher, cfg.AMD.INPUT_SIZE
         )
@@ -34,13 +38,13 @@ class AMD_SNER(Distiller):
         # Adapters from Student to Teacher
         self.adapter_dict = nn.ModuleDict({
             **{
-                f"adapter_{m_l:03d}": SimpleAdapter(feat_s_shapes[m_l // 2][-1], feat_t_shapes[m_l][-1])
-                for m_l in self.m_layers
+                f"adapter_{m_l_stu:03d}": SimpleAdapter(feat_s_shapes[m_l_stu][-1], feat_t_shapes[m_l][-1])
+                for m_l_stu, m_l in zip(self.m_layers_stu, self.m_layers)
             }
         })
         
         # SNER LoRA for Teacher
-        self.sner_dict = init_sner(self.teacher, self.m_layers, self.rank)
+        self.sner_dict = init_sner(self.teacher, self.m_layers, self.rank, self.sner_method)
         
     def get_learnable_parameters(self):
         yield from super().get_learnable_parameters()
@@ -62,8 +66,8 @@ class AMD_SNER(Distiller):
             _, feature_teacher = self.teacher.forward_wohead(image)
             
         loss_feat, loss_outlier, loss_info = 0.0, 0.0, 0.0
-        for m_l in self.m_layers:
-            f_s = feature_student["feats"][m_l // 2]
+        for m_l_stu, m_l in zip(self.m_layers_stu, self.m_layers):
+            f_s = feature_student["feats"][m_l_stu]
             f_t = feature_teacher["feats"][m_l] # y_base
             
             # for SNER
@@ -74,7 +78,7 @@ class AMD_SNER(Distiller):
             f_t_sner = self.teacher.blocks[m_l].forward(mod) # y_hat
             
             distill_f_t = f_t_sner.clone()
-            proj_f_s = self.adapter_dict[f"adapter_{m_l:03d}"](f_s)
+            proj_f_s = self.adapter_dict[f"adapter_{m_l_stu:03d}"](f_s)
             
             # feature loss
             loss_feat = loss_feat + F.mse_loss(proj_f_s, distill_f_t)

@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from ._base import Distiller
-from ._common import get_feat_shapes, SimpleAdapter
+from ._common import get_feat_shapes, SimpleAdapter, compute_mapped_layers
 
 @torch.no_grad()
 def modified_zscore(data: torch.Tensor, threshold=3.5):
@@ -27,11 +27,12 @@ class FitViT(Distiller):
         self.ce_loss_weight = cfg.FITNET.LOSS.CE_WEIGHT
         self.feat_loss_weight = cfg.FITNET.LOSS.FEAT_WEIGHT
         self.hint_layer = cfg.FITNET.HINT_LAYER
+        self.hint_layer_stu = compute_mapped_layers([self.hint_layer], self.teacher, self.student)[0]
         feat_s_shapes, feat_t_shapes = get_feat_shapes(
             self.student, self.teacher, cfg.FITNET.INPUT_SIZE
         )
         self.adapter = SimpleAdapter(
-            feat_s_shapes[self.hint_layer][-1], feat_t_shapes[self.hint_layer][-1]
+            feat_s_shapes[self.hint_layer_stu][-1], feat_t_shapes[self.hint_layer][-1]
         )
 
         self.af_enabled = cfg.FITNET.AF.ENABLE
@@ -53,7 +54,7 @@ class FitViT(Distiller):
             feature_teacher = self.teacher.forward_partial(image, self.hint_layer)
         # losses
         loss_ce = self.ce_loss_weight * F.cross_entropy(logits_student, target)
-        f_s = self.adapter(feature_student["feats"][self.hint_layer])
+        f_s = self.adapter(feature_student["feats"][self.hint_layer_stu])
 
         if self.af_enabled:
             f_t = feature_teacher["feats"][self.hint_layer]
