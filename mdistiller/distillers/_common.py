@@ -275,9 +275,9 @@ def compute_mapped_layers(layers, teacher, student):
 # for SNER ---------------------------------------------------------------------------------------------------------
 class SNERAdapter(nn.Module):
     """
-    Null-space LoRA 어댑터.
-      • method = "sner"   : 영공간 기저를 그대로 사용 (기존 방식)
-      • method = "random" : 영공간 차원과 동일한 크기의 무작위 기저 사용
+    Null-space LoRA Adapter.
+      • method = "sner"   : Use the null-space for init params.
+      • method = "random" : Use a randomly generated params for init params.
     """
     def __init__(self, W: torch.Tensor, rank: int = 16, method: str = "sner"):
         super().__init__()
