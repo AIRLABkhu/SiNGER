@@ -10,7 +10,16 @@ from ._common import (
     compute_mapped_layers
 )
 
-def init_sner(model, layers, rank, sner_method):
+def init_intermediate_sner(model, layers, rank, sner_method):
+    return nn.ModuleDict({
+        **{
+                f"sner_{l:03d}": SNERAdapter((model.blocks[l+1].mlp.fc2.weight @ model.blocks[l+1].mlp.fc1.weight).t().detach(),
+                                             rank=rank, method=sner_method)
+                for l in layers
+            }
+    })
+    
+def init_last_sner(model, layers, rank, sner_method):
     return nn.ModuleDict({
         **{
                 f"sner_{l:03d}": SNERAdapter((model.blocks[l].mlp.fc2.weight @ model.blocks[l].mlp.fc1.weight).t().detach(),
@@ -44,7 +53,7 @@ class AMD_SNER(Distiller):
         })
         
         # SNER LoRA for Teacher
-        self.sner_dict = init_sner(self.teacher, self.m_layers, self.rank, self.sner_method)
+        self.sner_dict = init_intermediate_sner(self.teacher, self.m_layers, self.rank, self.sner_method)
         
     def get_learnable_parameters(self):
         yield from super().get_learnable_parameters()
@@ -88,14 +97,21 @@ class AMD_SNER(Distiller):
                 target_norms = q_threshold.expand_as(norms)[norms > q_threshold]
                 loss_outlier = loss_outlier + F.mse_loss(outlier_norms, target_norms)
             else:
-                loss_outlier = loss_outlier + torch.tensor(0.0, device=f_s.device)
+                loss_outlier = loss_outlier + torch.tensor(0.0, device=f_s.device)                                
 
             # 3.3. Information Preservation Loss (L_info)
+            
+            ### if itermediate_layer:
+            
             with torch.no_grad():
                 f_t_next = self.teacher.blocks[m_l + 1].forward(f_t) # F_T^{l+1}
             
             f_t_sner_next = self.teacher.blocks[m_l + 1].forward(f_t_sner) # \hat{F}_T^{l+1}
             cosine_sim = F.cosine_similarity(f_t_sner_next, f_t_next, dim=-1) # \hat{F}_T^{l+1} - F_T^{l+1}
+            
+            ## else (last layer):
+            # cosine_sim = F.cosine_similarity(f_t_sner, f_t, dim=-1) # \hat{F}_T^{l+1} - F_T^{l+1}
+            
             loss_info = loss_info + (1.0 - cosine_sim).mean()
             
         loss_feat = self.feat_loss_weight * loss_feat / len(self.m_layers) 
