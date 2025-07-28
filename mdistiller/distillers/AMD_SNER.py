@@ -10,24 +10,17 @@ from ._common import (
     compute_mapped_layers
 )
 
-def init_intermediate_sner(model, layers, rank, sner_method):
-    return nn.ModuleDict({
-        **{
-                f"sner_{l:03d}": SNERAdapter((model.blocks[l+1].mlp.fc2.weight @ model.blocks[l+1].mlp.fc1.weight).t().detach(),
-                                             rank=rank, method=sner_method)
-                for l in layers
-            }
-    })
-    
-def init_last_sner(model, layers, rank, sner_method):
-    return nn.ModuleDict({
-        **{
-                f"sner_{l:03d}": SNERAdapter((model.blocks[l].mlp.fc2.weight @ model.blocks[l].mlp.fc1.weight).t().detach(),
-                                             rank=rank, method=sner_method)
-                for l in layers
-            }
-    })
-    
+def init_sner(model, layers, rank, sner_method):
+    sner_dict = {}
+    last_layer = layers[-1]
+    for l in layers:
+        if l == last_layer: # for last layer
+            W = (model.blocks[l].mlp.fc2.weight @ model.blocks[l].mlp.fc1.weight).t().detach()
+        else: # for intermediate layer
+            W = (model.blocks[l+1].mlp.fc2.weight @ model.blocks[l+1].mlp.fc1.weight).t().detach()
+        sner_dict[f"sner_{l:03d}"] = SNERAdapter(W, rank=rank, method=sner_method)
+    return nn.ModuleDict(sner_dict)
+
 class AMD_SNER(Distiller):
     def __init__(self, student, teacher, cfg):
         super(AMD_SNER, self).__init__(student, teacher)
@@ -53,7 +46,7 @@ class AMD_SNER(Distiller):
         })
         
         # SNER LoRA for Teacher
-        self.sner_dict = init_intermediate_sner(self.teacher, self.m_layers, self.rank, self.sner_method)
+        self.sner_dict = init_sner(self.teacher, self.m_layers, self.rank, self.sner_method)
         
     def get_learnable_parameters(self):
         yield from super().get_learnable_parameters()
@@ -77,7 +70,7 @@ class AMD_SNER(Distiller):
         loss_feat, loss_outlier, loss_info = 0.0, 0.0, 0.0    
         for m_l_stu, m_l in zip(self.m_layers_stu, self.m_layers):
             
-            f_s = feature_student["feats"][m_l_stu ]# F_S^l
+            f_s = feature_student["feats"][m_l_stu]# F_S^l
             f_t = feature_teacher["feats"][m_l]  # F_T^l
             
             cls, patch = f_t[:, :1], f_t[:, 1:]
@@ -100,17 +93,13 @@ class AMD_SNER(Distiller):
                 loss_outlier = loss_outlier + torch.tensor(0.0, device=f_s.device)                                
 
             # 3.3. Information Preservation Loss (L_info)
-            
-            ### if itermediate_layer:
-            
-            with torch.no_grad():
-                f_t_next = self.teacher.blocks[m_l + 1].forward(f_t) # F_T^{l+1}
-            
-            f_t_sner_next = self.teacher.blocks[m_l + 1].forward(f_t_sner) # \hat{F}_T^{l+1}
-            cosine_sim = F.cosine_similarity(f_t_sner_next, f_t_next, dim=-1) # \hat{F}_T^{l+1} - F_T^{l+1}
-            
-            ## else (last layer):
-            # cosine_sim = F.cosine_similarity(f_t_sner, f_t, dim=-1) # \hat{F}_T^{l+1} - F_T^{l+1}
+            if m_l == self.m_layers[-1]: # if last layer
+                cosine_sim = F.cosine_similarity(f_t_sner, f_t, dim=-1) # \hat{F}_T^{l} - F_T^{l}   
+            else:
+                with torch.no_grad(): ## else itermediate_layer:
+                    f_t_next = self.teacher.blocks[m_l + 1].forward(f_t) # F_T^{l+1}
+                f_t_sner_next = self.teacher.blocks[m_l + 1].forward(f_t_sner) # \hat{F}_T^{l+1}
+                cosine_sim = F.cosine_similarity(f_t_sner_next, f_t_next, dim=-1) # \hat{F}_T^{l+1} - F_T^{l+1}
             
             loss_info = loss_info + (1.0 - cosine_sim).mean()
             
