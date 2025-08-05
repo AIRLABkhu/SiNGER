@@ -10,7 +10,7 @@ from ._common import (
     compute_mapped_layers
 )
 
-def init_sner(model, layers, rank, sner_method):
+def init_sner(model, layers, rank, threshold, sner_method):
     sner_dict = {}
     last_layer = layers[-1]
     for l in layers:
@@ -18,7 +18,7 @@ def init_sner(model, layers, rank, sner_method):
             W = (model.blocks[l].mlp.fc2.weight @ model.blocks[l].mlp.fc1.weight).t().detach()
         else: # for intermediate layer
             W = (model.blocks[l+1].mlp.fc2.weight @ model.blocks[l+1].mlp.fc1.weight).t().detach()
-        sner_dict[f"sner_{l:03d}"] = SNERAdapter(W, rank=rank, method=sner_method)
+        sner_dict[f"sner_{l:03d}"] = SNERAdapter(W, rank=rank, threshold=threshold, method=sner_method)
     return nn.ModuleDict(sner_dict)
 
 class AMD_SNER(Distiller):
@@ -29,6 +29,7 @@ class AMD_SNER(Distiller):
         self.info_loss_weight = cfg.AMD.LOSS.INFO_WEIGHT
         
         self.rank = cfg.AMD.SNER.RANK
+        self.null_threshold = cfg.AMD.SNER.NULL_THRES
         self.outlier_q = cfg.AMD.SNER.OUTLIER_Q
         self.sner_method = cfg.AMD.SNER.METHOD
         self.m_layers = cfg.AMD.M_LAYERS + [len(self.teacher.get_layers()) - 1]
@@ -46,7 +47,7 @@ class AMD_SNER(Distiller):
         })
         
         # SNER LoRA for Teacher
-        self.sner_dict = init_sner(self.teacher, self.m_layers, self.rank, self.sner_method)
+        self.sner_dict = init_sner(self.teacher, self.m_layers, self.rank, self.null_threshold, self.sner_method)
         
     def get_learnable_parameters(self):
         yield from super().get_learnable_parameters()
@@ -94,12 +95,12 @@ class AMD_SNER(Distiller):
 
             # 3.3. Information Preservation Loss (L_info)
             if m_l == self.m_layers[-1]: # if last layer
-                cosine_sim = F.cosine_similarity(f_t_sner, f_t, dim=-1) # \hat{F}_T^{l} - F_T^{l}   
+                cosine_sim = F.cosine_similarity(f_t_sner, f_t, dim=-1)  # \hat{F}_T^{l} - F_T^{l}   
             else:
                 with torch.no_grad(): ## else itermediate_layer:
-                    f_t_next = self.teacher.blocks[m_l + 1].forward(f_t) # F_T^{l+1}
-                f_t_sner_next = self.teacher.blocks[m_l + 1].forward(f_t_sner) # \hat{F}_T^{l+1}
-                cosine_sim = F.cosine_similarity(f_t_sner_next, f_t_next, dim=-1) # \hat{F}_T^{l+1} - F_T^{l+1}
+                    f_t_next = self.teacher.blocks[m_l + 1].forward(f_t)  # F_T^{l+1}
+                f_t_sner_next = self.teacher.blocks[m_l + 1].forward(f_t_sner)  # \hat{F}_T^{l+1}
+                cosine_sim = F.cosine_similarity(f_t_sner_next, f_t_next, dim=-1)  # \hat{F}_T^{l+1} - F_T^{l+1}
             
             loss_info = loss_info + (1.0 - cosine_sim).mean()
             
