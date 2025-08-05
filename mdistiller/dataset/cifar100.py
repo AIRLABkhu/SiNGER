@@ -135,7 +135,7 @@ def get_cifar100_test_transform():
     )
 
 
-def get_cifar100_dataloaders(batch_size, val_batch_size, num_workers, use_ddp):
+def get_cifar100_dataloaders(batch_size, val_batch_size, num_workers, use_ddp, use_subset=False):
     data_folder = get_data_folder()
     train_transform = get_cifar100_train_transform()
     test_transform = get_cifar100_test_transform()
@@ -154,7 +154,7 @@ def get_cifar100_dataloaders(batch_size, val_batch_size, num_workers, use_ddp):
 
 # CIFAR-100 for CRD
 def get_cifar100_dataloaders_sample(
-    batch_size, val_batch_size, num_workers, k, use_ddp, mode="exact"
+    batch_size, val_batch_size, num_workers, k, use_ddp, use_subset=False, mode="exact"
 ):
     data_folder = get_data_folder()
     train_transform = get_cifar100_train_transform()

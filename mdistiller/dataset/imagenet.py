@@ -1,12 +1,14 @@
 import os
 import numpy as np
 import torch
+from torch.utils.data import Subset
 from torchvision.datasets import ImageFolder
 import torchvision.transforms as transforms
 from ._common import make_loader
 
 
 data_folder = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../data/imagenet')
+subset_indices_1000_5 = torch.load(os.path.join(data_folder, 'subset-1000-5.pt'), weights_only=False)
 
 
 class ImageNet(ImageFolder):
@@ -90,21 +92,25 @@ def get_imagenet_test_transform(mean, std, resize_size=256, crop_size=224):
     )
     return test_transform
 
-def get_imagenet_dataloaders(batch_size, val_batch_size, num_workers, use_ddp,
+def get_imagenet_dataloaders(batch_size, val_batch_size, num_workers, use_ddp, use_subset=False,
     mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], img_size=224, resize_size=256, crop_size=224):
     train_transform = get_imagenet_train_transform(mean, std, img_size=img_size)
     train_folder = os.path.join(data_folder, 'train')
     train_set = ImageNet(train_folder, transform=train_transform)
+    if use_subset:
+        train_set = Subset(train_set, subset_indices_1000_5)
     num_data = len(train_set)
     train_loader = make_loader(train_set, batch_size, num_workers, shuffle=True, use_ddp=use_ddp)
     test_loader = get_imagenet_val_loader(val_batch_size, use_ddp, mean, std, resize_size=resize_size, crop_size=crop_size)
     return train_loader, test_loader, num_data
 
-def get_imagenet_dataloaders_sample(batch_size, val_batch_size, num_workers, use_ddp, k=4096, 
+def get_imagenet_dataloaders_sample(batch_size, val_batch_size, num_workers, use_ddp, use_subset=False, k=4096, 
     mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], img_size=224, resize_size=256, crop_size=224):
     train_transform = get_imagenet_train_transform(mean, std, img_size=img_size)
     train_folder = os.path.join(data_folder, 'train')
     train_set = ImageNetInstanceSample(train_folder, transform=train_transform, is_sample=True, k=k)
+    if use_subset:
+        train_set = Subset(train_set, subset_indices_1000_5)
     num_data = len(train_set)
     train_loader = make_loader(train_set, batch_size, num_workers, shuffle=True, use_ddp=use_ddp)
     test_loader = get_imagenet_val_loader(val_batch_size, use_ddp, mean, std, resize_size=resize_size, crop_size=crop_size)

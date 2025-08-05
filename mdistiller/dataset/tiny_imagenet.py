@@ -71,7 +71,7 @@ class ImageFolderInstanceSample(ImageFolderInstance):
             return img, target, index
 
 
-def get_tinyimagenet_dataloader(batch_size, val_batch_size, num_workers, use_ddp):
+def get_tinyimagenet_dataloader(batch_size, val_batch_size, num_workers, use_ddp, use_subset=False):
     """Data Loader for tiny-imagenet"""
     train_transform = transforms.Compose([
                 transforms.RandomRotation(20),
@@ -93,7 +93,7 @@ def get_tinyimagenet_dataloader(batch_size, val_batch_size, num_workers, use_ddp
     return train_loader, test_loader, num_data
 
 
-def get_tinyimagenet_dataloader_sample(batch_size, val_batch_size, num_workers, k, use_ddp):
+def get_tinyimagenet_dataloader_sample(batch_size, val_batch_size, num_workers, k, use_ddp, use_subset=False):
     """Data Loader for tiny-imagenet"""
     train_transform = transforms.Compose([
                 transforms.RandomRotation(20),
