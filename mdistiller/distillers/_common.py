@@ -279,12 +279,13 @@ class SNERAdapter(nn.Module):
       • method = "sner"   : Use the null-space for init params.
       • method = "random" : Use a randomly generated params for init params.
     """
-    def __init__(self, W: torch.Tensor, rank: int = 16, method: str = "sner"):
+    def __init__(self, W: torch.Tensor, rank: int = 16, threshold: float = 1.0E-3, method: str = "sner"):
         super().__init__()
+        self.threshold = threshold
         d = W.size(0)
         method = method.lower()
         U, S, _ = torch.linalg.svd(W, full_matrices=True)  # SVD 수행
-        small_indices = torch.nonzero(S < 1e-3, as_tuple=False).squeeze(-1)
+        small_indices = torch.nonzero(S < threshold, as_tuple=False).squeeze(-1)
         N_raw = U[:, small_indices].t()
         k = N_raw.size(0)
         if method == "sner":
