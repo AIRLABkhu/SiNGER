@@ -134,13 +134,13 @@ class ADE20k(Dataset):
         return image, label
 
 
-def get_ade20k_val_loader(val_batch_size, use_ddp, mean=MEAN, std=STD, img_size: int=224):
+def get_ade20k_val_loader(val_batch_size, use_ddp, use_subset=False, mean=MEAN, std=STD, img_size: int=224):
     test_transform = get_ade20k_test_transform(mean, std, img_size=img_size)
     test_set = ADE20k(split='test', transform=test_transform)
     test_loader = make_loader(test_set, val_batch_size, num_workers=16, shuffle=False, use_ddp=use_ddp)
     return test_loader
 
-def get_ade20k_dataloaders(batch_size, val_batch_size, num_workers, use_ddp,
+def get_ade20k_dataloaders(batch_size, val_batch_size, num_workers, use_ddp, use_subset=False,
     mean=MEAN, std=STD, img_size: int=224):
     train_transform = get_ade20k_train_transform(mean, std, img_size=img_size)
     train_set = ADE20k(split='train', transform=train_transform)

@@ -81,13 +81,13 @@ class NYUdV2(Dataset):
             return image, depth
 
 
-def get_nyud_val_loader(val_batch_size, use_ddp, mean=MEAN, std=STD):
+def get_nyud_val_loader(val_batch_size, use_ddp, use_subset=False, mean=MEAN, std=STD):
     test_transform = get_nyud_test_transform(mean, std)
     test_set = NYUdV2(split='test', transform=test_transform)
     test_loader = make_loader(test_set, val_batch_size, num_workers=16, shuffle=False, use_ddp=use_ddp)
     return test_loader
 
-def get_nyud_dataloaders(batch_size, val_batch_size, num_workers, use_ddp, mean=MEAN, std=STD):
+def get_nyud_dataloaders(batch_size, val_batch_size, num_workers, use_ddp, use_subset=False, mean=MEAN, std=STD):
     train_transform = get_nyud_train_transform(mean, std)
     train_set = NYUdV2(split='train', transform=train_transform)
     num_data = len(train_set)
