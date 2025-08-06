@@ -48,7 +48,7 @@ def get_binned_target(depth_map, num_bins=256):
     binned = (normed * (num_bins - 1)).round().long()
     return binned
 
-def depth_from_logit(logit, min_depth=0.5, max_depth=10.0, soft: bool=True, temperature: float=0.03):
+def depth_from_logit(logit, min_depth=0.0, max_depth=10.0, soft: bool=True, temperature: float=0.03):
     if soft:
         logit_hard = (logit / temperature).softmax(dim=1)
     else:
@@ -158,7 +158,7 @@ def main(args: Namespace):
                 
                 with torch.no_grad():
                     pred_depth = depth_from_logit(pred_logit)
-                    target_depth = 0.5 + target * 9.5  # for real depth from normalized target min 0.5m max 10m
+                    target_depth = target * 10.0
                     loss = torch.nn.functional.cross_entropy(pred_logit, target_binned.to(DEVICE), reduction='none')
                     loss_all = dist_fn.gather(loss)
                     local_rmse = torch.square(pred_depth - target_depth.to(DEVICE)).flatten(1).mean(dim=1).sqrt()
@@ -189,7 +189,7 @@ def main(args: Namespace):
                 loss = torch.nn.functional.cross_entropy(pred_logit, target_binned.to(DEVICE), reduction='none')
                 
                 loss_all = dist_fn.gather(loss)
-                target_depth = 0.5 + target * 9.5
+                target_depth = target * 10.0
                 local_rmse = torch.square(pred_depth - target_depth.to(DEVICE)).flatten(1).mean(dim=1).sqrt()
                 rmse_all = dist_fn.gather(local_rmse)
                 
