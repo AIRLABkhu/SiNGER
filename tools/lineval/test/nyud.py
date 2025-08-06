@@ -95,7 +95,7 @@ def main(args: Namespace):
             
             batch_size = input.size(0)
             loss = torch.nn.functional.cross_entropy(pred_logit, target_binned.to(DEVICE))
-            target_depth = 0.5 + target * 9.5
+            target_depth = target * 10.0
             
             total_loss += loss.cpu().item() * batch_size
             preds_all.append(pred_depth.cpu())
