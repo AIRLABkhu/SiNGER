@@ -13,6 +13,7 @@ from timm.models.vision_transformer import (
 )
 from .._base import ModelBase
 
+UNIC_LARGE_CHECKPOINT_FILEPATH = 'ckpt/unic_l.pth'
 
 class VisionTransformer(TimmViT, ModelBase):
     def __init__(
@@ -327,11 +328,10 @@ def unic_large_patch14_336(pretrained: bool = False, **kwargs):
     model_args = dict(patch_size=14, embed_dim=1024, depth=24, num_heads=16, img_size=336)
     model = _create_vision_transformer('vit_large_patch16_224.augreg_in21k_ft_in1k', pretrained=False, **dict(model_args, **kwargs))
     if pretrained:
-        UNIC_CKPT = 'ckpt/unic_l.pth'
-        ckpt = torch.load(UNIC_CKPT, map_location="cpu", weights_only=False)
+        ckpt = torch.load(UNIC_LARGE_CHECKPOINT_FILEPATH, map_location="cpu", weights_only=False)
         enc_sd = clean_unic_checkpoint_keys(ckpt)
         model.load_state_dict(enc_sd, strict=False)
-        print(f"Load Pretrained ckpt from {UNIC_CKPT}")
+        print(f"Load Pretrained ckpt from {UNIC_LARGE_CHECKPOINT_FILEPATH}")
     return model
 
 def unic_tiny_patch14_336(pretrained: bool = False, **kwargs) -> VisionTransformer:
