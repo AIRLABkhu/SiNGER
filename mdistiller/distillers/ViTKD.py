@@ -50,7 +50,7 @@ class ViTKD(Distiller):
         assert len(set(self.m_layers).intersection(self.layers)) == 0
         
         feat_s_shapes, feat_t_shapes = get_feat_shapes(
-            self.student, self.teacher, cfg.VITKD.INPUT_SIZE
+            self.student, self.teacher, cfg.DATASET.INPUT_SIZE
         )
         self.adapters = nn.ModuleDict({
             f'{lidx:02d}': SimpleAdapter(feat_s_shapes[lidx][-1], feat_t_shapes[lidx][-1])
