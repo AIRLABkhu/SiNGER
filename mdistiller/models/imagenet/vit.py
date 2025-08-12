@@ -304,6 +304,44 @@ def deit3_large_patch16_224(pretrained=False, **kwargs) -> VisionTransformer:
     return model
 
 
+# UNIC
+def clean_unic_checkpoint_keys(ckpt):
+    import re
+    # 1) encoder. prefix 제거
+    enc_sd = {k.replace("encoder.", ""): v
+              for k, v in ckpt['model'].items()
+              if k.startswith("encoder.")}
+    # 2) blocks.0.<L>.* → blocks.<L>.*
+    new_sd = {}
+    for k, v in enc_sd.items():
+        m = re.match(r'blocks\.0\.(\d+)\.(.+)', k)
+        if m:
+            new_sd[f'blocks.{m.group(1)}.{m.group(2)}'] = v
+        elif k == 'mask_token' or k.startswith('decoder'):
+            continue
+        else:
+            new_sd[k] = v
+    return new_sd
+
+def unic_large_patch14_336(pretrained: bool = False, **kwargs):
+    model_args = dict(patch_size=14, embed_dim=1024, depth=24, num_heads=16, img_size=336)
+    model = _create_vision_transformer('vit_large_patch16_224.augreg_in21k_ft_in1k', pretrained=False, **dict(model_args, **kwargs))
+    if pretrained:
+        UNIC_CKPT = 'ckpt/unic_l.pth'
+        ckpt = torch.load(UNIC_CKPT, map_location="cpu", weights_only=False)
+        enc_sd = clean_unic_checkpoint_keys(ckpt)
+        model.load_state_dict(enc_sd, strict=False)
+        print(f"Load Pretrained ckpt from {UNIC_CKPT}")
+    return model
+
+def unic_tiny_patch14_336(pretrained: bool = False, **kwargs) -> VisionTransformer:
+    """ ViT-Tiny (Vit-Ti/16)
+    """
+    model_args = dict(patch_size=14, embed_dim=192, depth=12, num_heads=3, img_size=336)
+    model = _create_vision_transformer('vit_tiny_patch16_224.augreg_in21k_ft_in1k', pretrained=pretrained, **dict(model_args, **kwargs))
+    return model
+
+
 if __name__ == "__main__":
     input = torch.randn(1, 3, 224, 224)
     model = clip_base_patch16_224(pretrained=True)
