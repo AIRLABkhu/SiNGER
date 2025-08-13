@@ -1,17 +1,17 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "fitvit,vit-large,vit-tiny,layer11,layer17"
-  PROJECT: "vit-baselines"
+  TAG: "fitvit,unic-large,unic-tiny,layer11,layer17"
+  PROJECT: "unic-baselines"
 DATASET:
   TYPE: "imagenet"
   NUM_WORKERS: 32
-  INPUT_SIZE: [224, 224]
+  INPUT_SIZE: [336, 336]
   TEST:
     BATCH_SIZE: 128
 DISTILLER:
   TYPE: "FITVIT"
-  TEACHER: "vit_large"
-  STUDENT: "vit_tiny"
+  TEACHER: "unic_large"
+  STUDENT: "unic_tiny"
 SOLVER:
   BATCH_SIZE: 512
   EPOCHS: 100

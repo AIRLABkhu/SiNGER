@@ -1,10 +1,11 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "amd-sner,dinov2-large,dinov2-tiny,layer15,mse"
+  TAG: "amd-sner,dinov2-large,dinov2-tiny,layer11,layer17,rank2,null0.05,outlier0.97"
   PROJECT: "dinov2-baselines"
 DATASET:
   TYPE: "imagenet"
   NUM_WORKERS: 32
+  INPUT_SIZE: [518, 518]
   TEST:
     BATCH_SIZE: 128
 DISTILLER:
@@ -27,12 +28,12 @@ LOG:
   TENSORBOARD_FREQ: 50
   SAVE_CHECKPOINT_FREQ: 10
 AMD:
-  M_LAYERS: [15]
+  M_LAYERS: [11, 17]
   ALIGN_TYPE: 'mse'
-  INPUT_SIZE: [518, 518]
   LOSS:
     FEAT_WEIGHT: 1.0
   SNER:
-    RANK: 16
-    OUTLIER_Q: 0.95
+    RANK: 2
+    NULL_THRES: 0.05
+    OUTLIER_Q: 0.97
     METHOD: 'sner'

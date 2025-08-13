@@ -16,7 +16,7 @@ class FitViT(Distiller):
         self.hint_layer = [*cfg.FITVIT.M_LAYERS, len(self.teacher.get_layers()) - 1]
         self.hint_layer_stu = compute_mapped_layers(self.hint_layer, self.teacher, self.student)
         feat_s_shapes, feat_t_shapes = get_feat_shapes(
-            self.student, self.teacher, cfg.FITNET.INPUT_SIZE
+            self.student, self.teacher, cfg.DATASET.INPUT_SIZE
         )
         self.adapters = nn.ModuleDict({
             f"adapter_{m_l_stu:03d}": SimpleAdapter(feat_s_shapes[m_l_stu][-1], feat_t_shapes[m_l][-1])

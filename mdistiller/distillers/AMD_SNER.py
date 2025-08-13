@@ -35,7 +35,7 @@ class AMD_SNER(Distiller):
         self.m_layers = cfg.AMD.M_LAYERS + [len(self.teacher.get_layers()) - 1]
         self.m_layers_stu = compute_mapped_layers(self.m_layers, self.teacher, self.student)
         feat_s_shapes, feat_t_shapes = get_feat_shapes(
-            self.student, self.teacher, cfg.AMD.INPUT_SIZE
+            self.student, self.teacher, cfg.DATASET.INPUT_SIZE
         )
         
         # Adapters from Student to Teacher

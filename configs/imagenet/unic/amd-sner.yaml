@@ -1,17 +1,17 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "fitvit,vit-large,vit-tiny,layer11,layer17"
-  PROJECT: "vit-baselines"
+  TAG: "amd-sner,unic-large,unic-tiny,layer11,layer17,rank2,null0.05,outlier0.97"
+  PROJECT: "unic-baselines"
 DATASET:
   TYPE: "imagenet"
   NUM_WORKERS: 32
-  INPUT_SIZE: [224, 224]
+  INPUT_SIZE: [336, 336]
   TEST:
     BATCH_SIZE: 128
 DISTILLER:
-  TYPE: "FITVIT"
-  TEACHER: "vit_large"
-  STUDENT: "vit_tiny"
+  TYPE: "AMD_SNER"
+  TEACHER: "unic_large"
+  STUDENT: "unic_tiny"
 SOLVER:
   BATCH_SIZE: 512
   EPOCHS: 100
@@ -27,8 +27,13 @@ SOLVER:
 LOG:
   TENSORBOARD_FREQ: 50
   SAVE_CHECKPOINT_FREQ: 10
-FITNET:
-  LOSS:
-    CE_WEIGHT: 0.0
-FITVIT:
+AMD:
   M_LAYERS: [11, 17]
+  ALIGN_TYPE: 'mse'
+  LOSS:
+    FEAT_WEIGHT: 1.0
+  SNER:
+    RANK: 2
+    NULL_THRES: 0.05
+    OUTLIER_Q: 0.97
+    METHOD: 'sner'

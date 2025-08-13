@@ -16,6 +16,8 @@ from .vit import (
     deit3_medium_patch16_224,
     deit3_base_patch16_224,
     deit3_large_patch16_224,
+    unic_large_patch14_336,
+    unic_tiny_patch14_336,
 )
 
 
@@ -44,4 +46,7 @@ imagenet_model_dict = {
     "deit3_medium": deit3_medium_patch16_224,
     "deit3_base": deit3_base_patch16_224,
     "deit3_large": deit3_large_patch16_224,
+    
+    "unic_tiny": unic_tiny_patch14_336,
+    "unic_large": unic_large_patch14_336,
 }
