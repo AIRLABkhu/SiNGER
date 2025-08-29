@@ -1,5 +1,7 @@
 import os
 import torch
+from typing import Any
+from PIL import Image
 from torchvision import datasets, transforms
 from ._common import make_loader
 from .imagenet import (
@@ -43,7 +45,32 @@ class INat2019(datasets.INaturalist):
             self.index = [self.index[i] for i in split_indices[1]]
     
     def __getitem__(self, index):
-        img, target = super().__getitem__(index)
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            tuple: (image, target) where the type of target specified by target_type.
+        """
+
+        cat_id, fname = self.index[index]
+        img = Image.open(os.path.join(self.root, self.all_categories[cat_id], fname))
+        img = img.convert('RGB')
+
+        target: Any = []
+        for t in self.target_type:
+            if t == "full":
+                target.append(cat_id)
+            else:
+                target.append(self.categories_map[cat_id][t])
+        target = tuple(target) if len(target) > 1 else target[0]
+
+        if self.transform is not None:
+            img = self.transform(img)
+
+        if self.target_transform is not None:
+            target = self.target_transform(target)
+
         return img, target, index
 
 
