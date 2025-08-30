@@ -2,6 +2,13 @@ from .cifar100 import get_cifar100_dataloaders, get_cifar100_dataloaders_sample
 from .imagenet import get_imagenet_dataloaders, get_imagenet_dataloaders_sample
 from .tiny_imagenet import get_tinyimagenet_dataloader, get_tinyimagenet_dataloader_sample
 
+from .fgvc_aircraft import get_fgvc_aircraft_dataloaders
+from .flowers102 import get_flowers102_dataloaders
+from .food101 import get_food101_dataloaders
+from .imagenet_r import get_imagenet_r_dataloaders
+from .inat2019 import get_inat2019_dataloaders
+from .oxford_iiit_pet import get_oxford_iiit_pet_dataloaders
+
 
 def get_dataset(cfg):
     use_ddp = cfg.EXPERIMENT.DDP
