@@ -65,7 +65,7 @@ def main(args: Namespace):
     # Training Loop
     with tqdm(test_loader, desc=f' TEST', dynamic_ncols=True) as bar, torch.no_grad():
         total_loss, preds_all, targets_all = 0, [], []
-        for input, target in bar:
+        for input, target, _ in bar:
             target = target.long()
             x = model.forward(input.cuda(DEVICE))[1]['feats'][-1]
             pred_logit = head.forward(x) # (B, 1000)
