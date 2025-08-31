@@ -136,32 +136,40 @@ def main(args: Namespace):
             train_top5 = correct_top5 / total
             train_loss = total_loss / total
 
-        with tqdm(test_loader, desc=f' TEST {epoch+1}', dynamic_ncols=True, disable=not IS_MASTER) as bar, torch.no_grad():
-            total_loss, correct_top1, correct_top5, total = 0, 0, 0, 0
-            for input, target in bar:
-                x = model.forward(input.cuda(DEVICE))[1]['feats'][-1]
-                pred_logit = head(x) # (B, 1000)
-                
-                loss = F.cross_entropy(pred_logit, target.to(DEVICE), reduction='none', ignore_index=-1)
-                loss_all = dist_fn.gather(loss)
+        if not args.skip_eval:
+            with tqdm(test_loader, desc=f' TEST {epoch+1}', dynamic_ncols=True, disable=not IS_MASTER) as bar, torch.no_grad():
+                total_loss, correct_top1, correct_top5, total = 0, 0, 0, 0
+                for batch in bar:
+                    input, target = batch[:2]
+                    x = model.forward(input.cuda(DEVICE))[1]['feats'][-1]
+                    pred_logit = head(x) # (B, 1000)
                     
-                i_top5_all = dist_fn.gather(pred_logit).topk(k=5, dim=1).indices
-                target_all = dist_fn.gather(target.to(DEVICE)).unsqueeze(-1)
-                
-                total_loss += loss_all.sum().cpu().item()
-                correct_top1 += (i_top5_all[:, 0:1] == target_all).sum().cpu().item()
-                correct_top5 += (i_top5_all[:, 0:5] == target_all).sum().cpu().item()
-                total += loss_all.size(0)
-                
-                if IS_MASTER:
-                    bar.set_postfix(dict(
-                        loss=total_loss/total,
-                        top1=correct_top1/total*100.0,
-                        top5=correct_top5/total*100.0,
-                    ))
-            test_top1 = correct_top1 / total
-            test_top5 = correct_top5 / total
-            test_loss = total_loss / total
+                    loss = F.cross_entropy(pred_logit, target.to(DEVICE), reduction='none', ignore_index=-1)
+                    loss_all = dist_fn.gather(loss)
+                        
+                    i_top5_all = dist_fn.gather(pred_logit).topk(k=5, dim=1).indices
+                    target_all = dist_fn.gather(target.to(DEVICE)).unsqueeze(-1)
+                    
+                    total_loss += loss_all.sum().cpu().item()
+                    correct_top1 += (i_top5_all[:, 0:1] == target_all).sum().cpu().item()
+                    correct_top5 += (i_top5_all[:, 0:5] == target_all).sum().cpu().item()
+                    total += loss_all.size(0)
+                    
+                    if IS_MASTER:
+                        bar.set_postfix(dict(
+                            loss=total_loss/total,
+                            top1=correct_top1/total*100.0,
+                            top5=correct_top5/total*100.0,
+                        ))
+                test_top1 = correct_top1 / total
+                test_top5 = correct_top5 / total
+                test_loss = total_loss / total
+        else:
+            if IS_MASTER:
+                print('Skipping evaluation.')
+            test_top1 = 0.0
+            test_top5 = 0.0
+            test_loss = 0.0
         
         # Logging
         train_loss_list.append(train_loss)
@@ -205,6 +213,7 @@ if __name__ == '__main__':
     parser = ArgumentParser('lineval.transfer')
     init_parser(parser, defaults=dict(epochs=1000))
     parser.add_argument('--dataset', type=str, choices=list(DATASETS.keys()))
+    parser.add_argument('--skip-eval', action='store_true', default=False)
     args = parser.parse_args()
     
     rank = int(os.environ['LOCAL_RANK'])

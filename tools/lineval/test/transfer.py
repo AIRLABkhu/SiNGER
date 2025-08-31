@@ -63,8 +63,7 @@ def main(args: Namespace):
     }
     print(head.load_state_dict(head_state_dict))
     
-    # Training Loop
-    with tqdm(test_loader, desc=f' TEST', dynamic_ncols=True) as bar, torch.no_grad():
+    with tqdm(test_loader, desc=f'TEST_{args.dataset}', dynamic_ncols=True) as bar, torch.no_grad():
         total_loss, preds_all, targets_all = 0, [], []
         for input, target in bar:
             target = target.long()
