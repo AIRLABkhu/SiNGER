@@ -43,7 +43,7 @@ DATASETS = {
     'flower': (get_flowers102_dataloaders, 102),
     'food': (get_food101_dataloaders, 101),
     # 'imagenet-r': (get_imagenet_r_dataloaders, 1000),
-    'inat2019': (get_inat2019_dataloaders, 1009),
+    'inat2019': (get_inat2019_dataloaders, 1010),
     'pet': (get_oxford_iiit_pet_dataloaders, 37),
 }
 
