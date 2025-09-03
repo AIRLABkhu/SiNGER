@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import einops
 
 from ._base import Distiller
-from ._common import SimpleAdapter, get_feat_shapes
+from ._common import SimpleAdapter, get_feat_shapes, compute_mapped_layers
 
 
 class Generator(nn.Module):
@@ -49,6 +49,8 @@ class ViTKD(Distiller):
             self.loss_weight = 1.0
         assert len(set(self.m_layers).intersection(self.layers)) == 0
         
+        self.layers = compute_mapped_layers(self.layers, self.teacher, self.student)
+        self.m_layers = compute_mapped_layers(self.m_layers, self.teacher, self.student)
         feat_s_shapes, feat_t_shapes = get_feat_shapes(
             self.student, self.teacher, cfg.DATASET.INPUT_SIZE
         )

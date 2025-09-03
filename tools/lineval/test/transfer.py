@@ -65,7 +65,8 @@ def main(args: Namespace):
     
     with tqdm(test_loader, desc=f'TEST_{args.dataset}', dynamic_ncols=True) as bar, torch.no_grad():
         total_loss, preds_all, targets_all = 0, [], []
-        for input, target in bar:
+        for batch in bar:
+            input, target = batch[:2]
             target = target.long()
             x = model.forward(input.cuda(DEVICE))[1]['feats'][-1]
             pred_logit = head.forward(x) # (B, 1000)
