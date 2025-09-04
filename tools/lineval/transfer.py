@@ -77,6 +77,7 @@ def main(args: Namespace):
     else:
         model, _ = load_from_checkpoint(args.expname, tag=args.tag)
     model: ModelBase = model.cuda(DEVICE)
+    model.set_input_size(args.img_size)
     head = ClsHead(model.embed_dim, num_classes=num_classes).cuda(DEVICE)
     
     model = nn.parallel.DistributedDataParallel(model, device_ids=[rank], find_unused_parameters=True)

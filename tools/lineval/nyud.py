@@ -86,7 +86,7 @@ class DepthEstimator(nn.Module):
         patch_2d = einops.rearrange(patch_cls, 'B (H W) C -> B H W C', H=H)
 
         upsampled = F.interpolate(
-            patch_2d.permute(0, 3, 1, 2),
+            patch_2d.permute(0, 3, 1, 2).contiguous(),
             scale_factor=self.upsample_factor,
             mode='bilinear',
             align_corners=False,
@@ -120,7 +120,7 @@ def main(args: Namespace):
     else:
         model, _ = load_from_checkpoint(args.expname, tag=args.tag)
     model: ModelBase = model.cuda(DEVICE)
-    depth_resolution = 256
+    model.set_input_size(args.img_size)
     head = DepthEstimator(model.embed_dim, upsample_factor=args.upsample_factor).cuda(DEVICE)
     
     model = nn.parallel.DistributedDataParallel(model, device_ids=[rank], find_unused_parameters=True)

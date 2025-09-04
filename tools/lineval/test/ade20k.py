@@ -32,6 +32,7 @@ def main(args: Namespace):
     else:
         model, _ = load_from_checkpoint(args.expname, tag=args.tag)
     model: ModelBase = model.cuda(DEVICE)
+    model.set_input_size(args.img_size)
     head = SemSegHead(model.embed_dim, upsample_factor=args.upsample_factor).cuda(DEVICE)
     
     head_state_dict = load_head_checkpoint(
