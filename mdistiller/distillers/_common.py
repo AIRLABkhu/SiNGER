@@ -300,9 +300,7 @@ class SNERAdapter(nn.Module):
                 else:
                     N = N[:rank]
         elif method == "random":
-            rand_dim = k if k > 0 else rank
-            N = F.normalize(torch.randn(rand_dim, d,
-                                         device=W.device, dtype=W.dtype), dim=-1)
+            N = F.normalize(torch.randn(rank, d, device=W.device, dtype=W.dtype), dim=-1)
         else:
             raise ValueError(f'Unsupported method "{method}". Use "sner" or "random".')
 

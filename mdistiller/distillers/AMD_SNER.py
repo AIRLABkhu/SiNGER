@@ -32,7 +32,10 @@ class AMD_SNER(Distiller):
         self.null_threshold = cfg.AMD.SNER.NULL_THRES
         self.outlier_q = cfg.AMD.SNER.OUTLIER_Q
         self.sner_method = cfg.AMD.SNER.METHOD
-        self.m_layers = cfg.AMD.M_LAYERS + [len(self.teacher.get_layers()) - 1]
+        if cfg.DISTILLER.TEACHER.startswith('dinov2_'):
+            self.m_layers = cfg.AMD.M_LAYERS
+        else:
+            self.m_layers = cfg.AMD.M_LAYERS + [len(self.teacher.get_layers()) - 1]
         self.m_layers_stu = compute_mapped_layers(self.m_layers, self.teacher, self.student)
         feat_s_shapes, feat_t_shapes = get_feat_shapes(
             self.student, self.teacher, cfg.DATASET.INPUT_SIZE
@@ -80,7 +83,7 @@ class AMD_SNER(Distiller):
 
             # 3.1. Knowledge Distillation Loss (L_KD)
             proj_f_s = self.adapter_dict[f"adapter_{m_l_stu:03d}"](f_s)
-            loss_feat = loss_feat + F.mse_loss(proj_f_s, f_t_sner) # \hat{F}_T^l - F_S^l
+            loss_feat = loss_feat + F.mse_loss(proj_f_s, f_t_sner) # \hat{F}_T^l - F_S^l    
 
             # 3.2. Outlier Suppression Loss (L_outlier)
             norms = f_t_sner[:, 1:].norm(dim=-1)
