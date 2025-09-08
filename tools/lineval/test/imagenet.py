@@ -39,9 +39,12 @@ def main(args: Namespace):
     DEVICE = args.device
     
     # DataLoaders, Models
+    resize_size = int(args.img_size * 256 / 224)
+    crop_size = args.img_size
     _, test_loader, _ = get_imagenet_dataloaders(
         1, args.batch_size,
         args.num_workers, use_ddp=False, img_size=args.img_size,
+        resize_size=resize_size, crop_size=crop_size,
     )
     if args.timm_model is not None:
         print(f"Loading {args.timm_model} from timm")
@@ -50,7 +53,7 @@ def main(args: Namespace):
         model, _ = load_from_checkpoint(args.expname, tag=args.tag)
     model: ModelBase = model.cuda(DEVICE)
     model.set_input_size(args.img_size)
-    head = ClsHead(model.embed_dim).cuda(DEVICE)
+    head = ClsHead(model.embed_dim, mode=args.mode).cuda(DEVICE)
     
     head_state_dict = load_head_checkpoint(
         args.expname, tag=args.tag, 
@@ -91,6 +94,7 @@ def main(args: Namespace):
 if __name__ == '__main__':
     parser = ArgumentParser('lineval.test.imagenet1k')
     init_parser(parser, defaults=dict(batch_size=128))
+    parser.add_argument('--mode', choices=['cls', 'avg', 'full'], default='cls')
     parser.add_argument('--lineval-when', '-lw', type=str, default=None)
     args = parser.parse_args()
     

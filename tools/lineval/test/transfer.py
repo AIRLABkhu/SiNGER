@@ -39,10 +39,13 @@ def main(args: Namespace):
     DEVICE = args.device
     
     # DataLoaders, Models
+    resize_size = int(args.img_size * 256 / 224)
+    crop_size = args.img_size
     get_loaders_fn, num_classes = DATASETS[args.dataset]
     _, test_loader, _ = get_loaders_fn(
         1, args.batch_size,
         args.num_workers, use_ddp=False, img_size=args.img_size,
+        resize_size=resize_size, crop_size=crop_size,
     )
     if args.timm_model is not None:
         print(f"Loading {args.timm_model} from timm")

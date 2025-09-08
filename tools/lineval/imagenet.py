@@ -1,4 +1,5 @@
 import os
+from typing import Literal
 from argparse import ArgumentParser, Namespace
 from tqdm.auto import tqdm
 
@@ -23,10 +24,11 @@ from mdistiller.utils import dist_fn
 # Utility
 
 class ClsHead(nn.Module):
-    def __init__(self, embed_dim: int, num_classes: int = 1000):
+    def __init__(self, embed_dim: int, num_classes: int = 1000, mode: Literal['cls', 'avg', 'full']='cls'):
         super().__init__()
         self.num_classes = num_classes
         self.head = nn.Linear(embed_dim, num_classes)
+        self.mode = mode
 
     def forward(self, feat: torch.Tensor):
         """
@@ -34,7 +36,14 @@ class ClsHead(nn.Module):
         Returns:
             pred_logit: (B, num_classes)
         """
-        cls_token = feat[:, 0]
+        if self.mode == 'cls':
+            cls_token = feat[:, 0]
+        elif self.mode == 'avg':
+            cls_token = feat[:, 1:].mean(dim=-2)
+        elif self.mode == 'full':
+            cls_token = feat
+        else:
+            raise RuntimeError(self.mode)
         pred = self.head(cls_token)  # (B, num_classes)
         return pred
 
@@ -54,9 +63,12 @@ def main(args: Namespace):
         )
     
     # DataLoaders, Models
+    resize_size = int(args.img_size * 256 / 224)
+    crop_size = args.img_size
     train_loader, test_loader, _ = get_imagenet_dataloaders(
         args.batch_size//world_size, args.test_batch_size//world_size,
         args.num_workers, use_ddp=True, img_size=args.img_size,
+        resize_size=resize_size, crop_size=crop_size,
     )
     if args.timm_model is not None:
         if IS_MASTER:
@@ -66,7 +78,7 @@ def main(args: Namespace):
         model, _ = load_from_checkpoint(args.expname, tag=args.tag)
     model: ModelBase = model.cuda(DEVICE)
     model.set_input_size(args.img_size)
-    head = ClsHead(model.embed_dim).cuda(DEVICE)
+    head = ClsHead(model.embed_dim, mode=args.mode).cuda(DEVICE)
     
     model = nn.parallel.DistributedDataParallel(model, device_ids=[rank], find_unused_parameters=True)
     head = nn.parallel.DistributedDataParallel(head, device_ids=[rank])
@@ -192,6 +204,7 @@ def main(args: Namespace):
 if __name__ == '__main__':
     parser = ArgumentParser('lineval.imagenet1k')
     init_parser(parser, defaults=dict(epochs=1000))
+    parser.add_argument('--mode', choices=['cls', 'avg', 'full'], default='cls')
     args = parser.parse_args()
     
     rank = int(os.environ['LOCAL_RANK'])

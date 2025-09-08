@@ -44,7 +44,7 @@ class SemSegHead(nn.Module):
         feat = einops.rearrange(feat, 'B (H W) C -> B C H W', H=resolution)
         logit = self.head(feat)  # (B, cls, H, W)
         upsampled = F.interpolate(
-            logit,
+            logit.contiguous(),
             scale_factor=self.upsample_factor,
             mode='bilinear',
             align_corners=False,

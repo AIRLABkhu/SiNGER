@@ -23,13 +23,18 @@ def get_config(
 def prepare_lineval_dir(
     exp_name: str,
     tag: Literal['latest', 'best']|int='latest',
+    mode: Literal['lineval', 'extract']='lineval',
     dataset: str='imagenet',
     args: dict|None=None,
+    use_nowstr: bool=True,
 ):
-    lineval_dir = Path('output').joinpath(exp_name, 'lineval')
-    nowstr = datetime.now().strftime('_%y%m%d_%H%M%S')
-    log_dir = lineval_dir.joinpath(str(tag), dataset + nowstr)
-    log_dir.mkdir(parents=True)
+    lineval_dir = Path('output').joinpath(exp_name, mode)
+    if use_nowstr:
+        nowstr = datetime.now().strftime('_%y%m%d_%H%M%S')
+        log_dir = lineval_dir.joinpath(str(tag), dataset + nowstr)
+    else:
+        log_dir = lineval_dir.joinpath(str(tag), dataset)
+    log_dir.mkdir(parents=True, exist_ok=True)
     
     if args is not None:
         cfg_filename = log_dir.joinpath('_cfg.yaml')

@@ -66,9 +66,12 @@ def main(args: Namespace):
     
     # DataLoaders, Models
     get_loaders_fn, num_classes = DATASETS[args.dataset]
+    resize_size = int(args.img_size * 256 / 224)
+    crop_size = args.img_size
     train_loader, test_loader, _ = get_loaders_fn(
         args.batch_size//world_size, args.test_batch_size//world_size,
         args.num_workers, use_ddp=True, img_size=args.img_size,
+        resize_size=resize_size, crop_size=crop_size,
     )
     if args.timm_model is not None:
         if IS_MASTER:
