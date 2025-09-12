@@ -6,19 +6,28 @@ from pathlib import Path
 from yacs.config import CfgNode as CN
 import torch
 from mdistiller.models.imagenet import imagenet_model_dict
+from mdistiller.distillers import distiller_dict
+from mdistiller.distillers._base import Distiller
 
 def get_config(
     exp_name: str,
     ckpt_tag: Literal['latest', 'best']|int|None=None,
+    load_full: bool=False,
 ):
     exp_root = os.path.join('output', exp_name)
     with open(os.path.join(exp_root, 'code', '_cfg.yaml'), 'r') as file:
         cfg = CN.load_cfg(file)
     if ckpt_tag is None:
         return cfg
+    
+    if load_full:
+        if ckpt_tag in {'latest', 'best'}:
+            ckpt = torch.load(os.path.join(exp_root, f'{ckpt_tag}'), map_location='cpu', weights_only=False)
+        else:
+            ckpt = torch.load(os.path.join(exp_root, f'epoch_{ckpt_tag}'), map_location='cpu', weights_only=False)
     else:
         ckpt = torch.load(os.path.join(exp_root, f'student_{ckpt_tag}'), map_location='cpu', weights_only=False)
-        return cfg, ckpt
+    return cfg, ckpt
 
 def prepare_lineval_dir(
     exp_name: str,
@@ -68,6 +77,25 @@ def load_from_checkpoint(
         raise ValueError(f'Expected {expected_arch}, but this checkpoint requires {model.get_arch()}.')
     result = model.load_state_dict(ckpt['model'], strict=False)
     return model, result
+
+def load_distiller_from_checkpoint(
+    exp_name: str,
+    tag: Literal['latest', 'best']|int='latest',
+    expected_arch: Literal['cnn', 'transformer']|None=None,
+):
+    cfg, ckpt = get_config(exp_name, ckpt_tag=tag, load_full=True)
+    student: torch.nn.Module = imagenet_model_dict[cfg.DISTILLER.STUDENT](pretrained=False)
+    teacher: torch.nn.Module = imagenet_model_dict[cfg.DISTILLER.TEACHER](pretrained=False)
+    if (expected_arch is not None) and (student.get_arch() != expected_arch):
+        raise ValueError(f'Expected {expected_arch}, but this checkpoint requires {student.get_arch()}.')
+    
+    state_dict = {
+        key.replace('module.', ''): val
+        for key, val in ckpt['model'].items()
+    }
+    distiller: Distiller = distiller_dict[cfg.DISTILLER.TYPE](student, teacher, cfg)
+    result = distiller.load_state_dict(state_dict, strict=True)
+    return distiller, result
 
 def load_head_checkpoint(
     exp_name: str,
