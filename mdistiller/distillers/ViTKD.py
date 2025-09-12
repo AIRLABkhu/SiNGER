@@ -49,18 +49,18 @@ class ViTKD(Distiller):
             self.loss_weight = 1.0
         assert len(set(self.m_layers).intersection(self.layers)) == 0
         
-        self.layers = compute_mapped_layers(self.layers, self.teacher, self.student)
-        self.m_layers = compute_mapped_layers(self.m_layers, self.teacher, self.student)
+        self.layers_stu = compute_mapped_layers(self.layers, self.teacher, self.student)
+        self.m_layers_stu = compute_mapped_layers(self.m_layers, self.teacher, self.student)
         feat_s_shapes, feat_t_shapes = get_feat_shapes(
             self.student, self.teacher, cfg.DATASET.INPUT_SIZE
         )
         self.adapters = nn.ModuleDict({
             f'{lidx:02d}': SimpleAdapter(feat_s_shapes[lidx][-1], feat_t_shapes[lidx][-1])
-            for lidx in self.layers + self.m_layers
+            for lidx in self.layers_stu + self.m_layers_stu
         })
         self.generators = nn.ModuleDict({
             f'{lidx:02d}': Generator(feat_t_shapes[lidx][-1])
-            for lidx in self.m_layers
+            for lidx in self.m_layers_stu
         })
         self.mask_tokens = nn.Parameter(
             torch.zeros(1, 1, self.teacher.embed_dim)
@@ -79,18 +79,18 @@ class ViTKD(Distiller):
             _, feature_teacher = self.teacher(image)
         
         loss: torch.Tensor = 0.0
-        for layer in self.layers:
-            adapter = self.adapters[f'{layer:02d}']
+        for lidx_stu, lidx_tea in zip(self.layers_stu, self.layers):
+            adapter = self.adapters[f'{lidx_stu:02d}']
             loss = loss + F.mse_loss(
-                adapter(feature_student['feats'][layer]),
-                feature_teacher['feats'][layer],
+                adapter(feature_student['feats'][lidx_stu]),
+                feature_teacher['feats'][lidx_tea],
             )
         
-        for layer in self.m_layers:
-            adapter = self.adapters[f'{layer:02d}']
-            generator = self.generators[f'{layer:02d}']
+        for lidx_stu, lidx_tea in zip(self.m_layers_stu, self.m_layers):
+            adapter = self.adapters[f'{lidx_stu:02d}']
+            generator = self.generators[f'{lidx_stu:02d}']
             
-            a_s = adapter(feature_student['feats'][layer])
+            a_s = adapter(feature_student['feats'][lidx_stu])
             mask = torch.rand_like(a_s[..., 0:1], device=a_s.device) <= self.masking_ratio
             mask = mask.expand_as(a_s)
             
@@ -99,7 +99,7 @@ class ViTKD(Distiller):
             
             g_s = generator(m_s)
             loss = loss + F.mse_loss(
-                g_s[mask], feature_teacher['feats'][layer][mask],
+                g_s[mask], feature_teacher['feats'][lidx_tea][mask],
             )
         
         loss = loss * self.loss_weight
