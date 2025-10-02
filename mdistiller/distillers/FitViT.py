@@ -11,8 +11,12 @@ class FitViT(Distiller):
 
     def __init__(self, student, teacher, cfg):
         super(FitViT, self).__init__(student, teacher)
-        self.ce_loss_weight = cfg.FITNET.LOSS.CE_WEIGHT
-        self.feat_loss_weight = cfg.FITNET.LOSS.FEAT_WEIGHT
+        try:
+            self.ce_loss_weight = cfg.FITNET.LOSS.CE_WEIGHT
+            self.feat_loss_weight = cfg.FITNET.LOSS.FEAT_WEIGHT
+        except AttributeError:
+            self.ce_loss_weight = 0.0
+            self.feat_loss_weight = 1.0
         self.hint_layer = [*cfg.FITVIT.M_LAYERS, len(self.teacher.get_layers()) - 1]
         self.hint_layer_stu = compute_mapped_layers(self.hint_layer, self.teacher, self.student)
         feat_s_shapes, feat_t_shapes = get_feat_shapes(
@@ -22,10 +26,6 @@ class FitViT(Distiller):
             f"adapter_{m_l_stu:03d}": SimpleAdapter(feat_s_shapes[m_l_stu][-1], feat_t_shapes[m_l][-1])
             for m_l_stu, m_l in zip(self.hint_layer_stu, self.hint_layer)
         })
-
-        self.af_enabled = cfg.FITNET.AF.ENABLE
-        self.af_type = cfg.FITNET.AF.CRITERIA.TYPE
-        self.af_threshold = cfg.FITNET.AF.CRITERIA.THRES
 
     def get_learnable_parameters(self):
         return super().get_learnable_parameters() + list(self.adapters.parameters())
