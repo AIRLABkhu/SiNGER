@@ -13,6 +13,8 @@ def dump_cfg(cfg, show: bool=False):
     if cfg.DISTILLER.TYPE.startswith('AMD_'):
         dump.AMD = cfg.AMD
         distiller_type = cfg.DISTILLER.TYPE[4:]
+    elif cfg.DISTILLER.TYPE.startswith('VITKD'):
+        distiller_type = 'VITKD'
     else:
         distiller_type = cfg.DISTILLER.TYPE
     if distiller_type in cfg:
@@ -116,6 +118,9 @@ CFG.VITKD.REF_AMD = True
 CFG.VITKD.M_LAYERS = [5]
 CFG.VITKD.LAYERS = [3]
 CFG.VITKD.MASKING_RATIO = 0.5
+CFG.VITKD.HPARAMS = CN()
+CFG.VITKD.HPARAMS.ALPHA = 0.00003
+CFG.VITKD.HPARAMS.BETA = 0.000003
 
 # KD CFG
 CFG.KD = CN()
