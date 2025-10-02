@@ -1,16 +1,15 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "vitkd-official,vit-large,vit-tiny"
+  TAG: "vitkd-official,vit-large,vit-tiny,layer17,fulllog"
   PROJECT: "vit-baselines"
 DATASET:
   TYPE: "imagenet"
-  SUBSET: False
   NUM_WORKERS: 32
   INPUT_SIZE: [224, 224]
   TEST:
     BATCH_SIZE: 128
 DISTILLER:
-  TYPE: "VITKD_O"
+  TYPE: "VITKD"
   TEACHER: "vit_large"
   STUDENT: "vit_tiny"
 SOLVER:
@@ -27,13 +26,12 @@ SOLVER:
   TYPE: "SGD"
 LOG:
   TENSORBOARD_FREQ: 50
-  SAVE_CHECKPOINT_FREQ: 10
+  SAVE_CHECKPOINT_FREQ: 1
 FITNET:
   LOSS:
     CE_WEIGHT: 0.0
 VITKD:
   REF_AMD: False
-  HPARAMS:
-    ALPHA: 0.00003
-    BETA: 0.000003
   MASKING_RATIO: 0.5
+  M_LAYERS: []
+  LAYERS: [0, 2]

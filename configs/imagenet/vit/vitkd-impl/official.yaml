@@ -1,10 +1,10 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "vitkd-official,vit-large,vit-tiny"
-  PROJECT: "vit-baselines"
+  TAG: "official"
+  PROJECT: "vitkd-impl"
 DATASET:
   TYPE: "imagenet"
-  SUBSET: False
+  SUBSET: True
   NUM_WORKERS: 32
   INPUT_SIZE: [224, 224]
   TEST:

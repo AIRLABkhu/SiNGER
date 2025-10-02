@@ -1,18 +1,18 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "vitkd-official,vit-large,vit-tiny"
-  PROJECT: "vit-baselines"
+  TAG: "ours-q99/huge-base"
+  PROJECT: "vit-scaling"
 DATASET:
   TYPE: "imagenet"
-  SUBSET: False
+  SUBSET: True
   NUM_WORKERS: 32
   INPUT_SIZE: [224, 224]
   TEST:
     BATCH_SIZE: 128
 DISTILLER:
-  TYPE: "VITKD_O"
-  TEACHER: "vit_large"
-  STUDENT: "vit_tiny"
+  TYPE: "AMD_SNER_v3"
+  TEACHER: "vit_huge"
+  STUDENT: "vit_base"
 SOLVER:
   BATCH_SIZE: 512
   EPOCHS: 100
@@ -28,12 +28,16 @@ SOLVER:
 LOG:
   TENSORBOARD_FREQ: 50
   SAVE_CHECKPOINT_FREQ: 10
-FITNET:
+AMD:
+  M_LAYERS: [23]
+  ALIGN_TYPE: 'mse'
   LOSS:
-    CE_WEIGHT: 0.0
-VITKD:
-  REF_AMD: False
-  HPARAMS:
-    ALPHA: 0.00003
-    BETA: 0.000003
-  MASKING_RATIO: 0.5
+    FEAT_WEIGHT: 1.0
+    ORTHO_WEIGHT: 1.0
+    NULLSPACE_WEIGHT: 0.0
+  SNER:
+    RANK: 64
+    NULL_THRES: 0.05
+    OUTLIER_Q: 0.99
+    METHOD: 'sner'
+

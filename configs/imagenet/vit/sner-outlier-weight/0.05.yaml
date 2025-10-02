@@ -1,0 +1,69 @@
+AMD:
+  AF:
+    ARTIFACT_NORM: False
+    CRITERIA:
+      THRES: 5.5
+      TYPE: zscore
+    ENABLE: True
+    RECON:
+      TYPE: recon_mha
+  ALIGN_TYPE: mse
+  INPUT_SIZE: [224, 224]
+  LOSS:
+    ALIGN_WEIGHT: 1.0
+    DETACH_REFINER: False
+    FEAT_WEIGHT: 1.0
+    INFO_WEIGHT: 1.0
+    OUTLIER_WEIGHT: 0.05
+    RECON_WEIGHT: 1.0
+  M_LAYERS: [17]
+  SNER:
+    METHOD: sner
+    NULL_THRES: 0.05
+    OUTLIER_Q: 0.97
+    RANK: 2
+DATASET:
+  INPUT_SIZE: [224, 224]
+  NUM_WORKERS: 8
+  SUBSET: True
+  TEST:
+    BATCH_SIZE: 32
+  TYPE: imagenet
+DISTILLER:
+  STUDENT: vit_tiny
+  TEACHER: vit_large
+  TYPE: AMD_SNER
+EXPERIMENT:
+  AMP: False
+  DDP: True
+  NAME: ""
+  PROJECT: _ablations
+  TAG: outlier-loss-weight/0.05
+LOG:
+  PREFIX: ./output
+  SAVE_CHECKPOINT_FREQ: 10
+  TENSORBOARD_FREQ: 50
+  WANDB: False
+SOLVER:
+  ADAM:
+    BETAS: [0.9, 0.999]
+    EPSILON: 1e-08
+  BATCH_SIZE: 128
+  DOT:
+    DELTA: 0.075
+  EPOCHS: 100
+  GRAD_CLIP: 0.0
+  LR: 0.001
+  SCHEDULE:
+    COSINE:
+      RATE: 0.0001
+      WARMUP: 5
+    MULTISTEP:
+      RATE: 0.1
+      STAGES: [30, 60, 90]
+    TYPE: COSINE
+  SGD:
+    MOMENTUM: 0.9
+  TRAINER: base
+  TYPE: AdamW
+  WEIGHT_DECAY: 0.0001

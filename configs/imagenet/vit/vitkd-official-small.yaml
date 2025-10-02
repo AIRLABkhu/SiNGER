@@ -1,6 +1,6 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "vitkd-official,vit-large,vit-tiny"
+  TAG: "vitkd-official,vit-small,vit-tiny"
   PROJECT: "vit-baselines"
 DATASET:
   TYPE: "imagenet"
@@ -11,7 +11,7 @@ DATASET:
     BATCH_SIZE: 128
 DISTILLER:
   TYPE: "VITKD_O"
-  TEACHER: "vit_large"
+  TEACHER: "vit_small"
   STUDENT: "vit_tiny"
 SOLVER:
   BATCH_SIZE: 512

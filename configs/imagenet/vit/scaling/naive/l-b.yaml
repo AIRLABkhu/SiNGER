@@ -1,18 +1,18 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "vitkd-official,vit-large,vit-tiny"
-  PROJECT: "vit-baselines"
+  TAG: "naive/large-base"
+  PROJECT: "vit-scaling"
 DATASET:
   TYPE: "imagenet"
-  SUBSET: False
+  SUBSET: True
   NUM_WORKERS: 32
   INPUT_SIZE: [224, 224]
   TEST:
     BATCH_SIZE: 128
 DISTILLER:
-  TYPE: "VITKD_O"
+  TYPE: "FITVIT"
   TEACHER: "vit_large"
-  STUDENT: "vit_tiny"
+  STUDENT: "vit_base"
 SOLVER:
   BATCH_SIZE: 512
   EPOCHS: 100
@@ -31,9 +31,7 @@ LOG:
 FITNET:
   LOSS:
     CE_WEIGHT: 0.0
-VITKD:
-  REF_AMD: False
-  HPARAMS:
-    ALPHA: 0.00003
-    BETA: 0.000003
-  MASKING_RATIO: 0.5
+    FEAT_WEIGHT: 1.0
+FITVIT:
+  M_LAYERS: [17]
+

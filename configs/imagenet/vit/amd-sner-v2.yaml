@@ -1,16 +1,15 @@
 EXPERIMENT:
   NAME: ""
-  TAG: "vitkd-official,vit-large,vit-tiny"
+  TAG: "amd-sner-v2,vit-large,vit-tiny,layer17,rank2,null0.05,outlier0.97"
   PROJECT: "vit-baselines"
 DATASET:
   TYPE: "imagenet"
-  SUBSET: False
   NUM_WORKERS: 32
   INPUT_SIZE: [224, 224]
   TEST:
     BATCH_SIZE: 128
 DISTILLER:
-  TYPE: "VITKD_O"
+  TYPE: "AMD_SNER_v2"
   TEACHER: "vit_large"
   STUDENT: "vit_tiny"
 SOLVER:
@@ -28,12 +27,15 @@ SOLVER:
 LOG:
   TENSORBOARD_FREQ: 50
   SAVE_CHECKPOINT_FREQ: 10
-FITNET:
+AMD:
+  M_LAYERS: [17]
+  ALIGN_TYPE: 'mse'
   LOSS:
-    CE_WEIGHT: 0.0
-VITKD:
-  REF_AMD: False
-  HPARAMS:
-    ALPHA: 0.00003
-    BETA: 0.000003
-  MASKING_RATIO: 0.5
+    FEAT_WEIGHT: 1.0
+    ORTHO_WEIGHT: 1.0
+    NULLSPACE_WEIGHT: 0.0
+  SNER:
+    RANK: 2
+    NULL_THRES: 0.05
+    OUTLIER_Q: 0.97
+    METHOD: 'sner'
