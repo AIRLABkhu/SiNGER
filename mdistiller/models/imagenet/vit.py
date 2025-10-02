@@ -235,11 +235,25 @@ def vit_huge_patch16_224(pretrained: bool = False, **kwargs) -> VisionTransforme
 
 
 # CLIP
+def clip_tiny_patch16_224(pretrained: bool = False, **kwargs) -> VisionTransformer:
+    """ No pretraining
+    """
+    model_args = dict(patch_size=16, embed_dim=192, depth=12, num_heads=3, pre_norm=True)
+    model = _create_vision_transformer('clip_tiny_patch16_224', pretrained=False, **dict(model_args, **kwargs))
+    return model
+
 def clip_xsmall_patch16_224(pretrained: bool = False, **kwargs) -> VisionTransformer:
     # TinyCLIP 8M
     model_args = dict(embed_dim=256, depth=10, num_heads=4, pre_norm=True, norm_layer=nn.LayerNorm)
     model = _create_vision_transformer(
-        'vit_xsmall_patch16_clip_224', pretrained=pretrained, **dict(model_args, **kwargs))
+        'vit_xsmall_patch16_clip_224', pretrained=False, **dict(model_args, **kwargs))
+    return model
+
+def clip_small_patch16_224(pretrained: bool = False, **kwargs) -> VisionTransformer:
+    """ No pretraining
+    """
+    model_args = dict(patch_size=16, embed_dim=384, depth=12, num_heads=6, pre_norm=True)
+    model = _create_vision_transformer('clip_small_patch16_224', pretrained=pretrained, **dict(model_args, **kwargs))
     return model
 
 def clip_base_patch16_224_ft_in(pretrained: bool = False, **kwargs) -> VisionTransformer:
@@ -252,6 +266,19 @@ def clip_base_patch16_224(pretrained: bool = False, **kwargs) -> VisionTransform
     # clip model params pre_norm=True
     model_args = dict(patch_size=16, embed_dim=768, depth=12, num_heads=12, pre_norm=True)
     model = _create_vision_transformer('vit_base_patch16_clip_224.openai', pretrained=pretrained, **dict(model_args, **kwargs))
+    return model
+
+def clip_small_patch16_224(pretrained: bool = False, **kwargs) -> VisionTransformer:
+    """ No pretraining
+    """
+    model_args = dict(patch_size=16, embed_dim=384, depth=12, num_heads=6, pre_norm=True)
+    model = _create_vision_transformer('vit_small_patch16_clip_224', pretrained=False, **dict(model_args, **kwargs))
+    return model
+
+def clip_large_patch16_224(pretrained: bool = False, **kwargs) -> VisionTransformer:
+    model_args = dict(patch_size=14, embed_dim=1024, depth=24, num_heads=16, pre_norm=True)
+    model = _create_vision_transformer('vit_large_patch14_clip_224.openai', pretrained=pretrained, **dict(model_args, **kwargs))
+    model.set_input_size(img_size=(224, 224), patch_size=(16, 16))
     return model
 
 
@@ -280,6 +307,13 @@ def dinov2_large_patch14_518(pretrained: bool = False, **kwargs):
 
 
 # deit-3
+def deit3_tiny_patch16_224(pretrained: bool = False, **kwargs) -> VisionTransformer:
+    """ No retraining
+    """
+    model_args = dict(patch_size=16, embed_dim=192, depth=12, num_heads=3, no_embed_class=True, init_values=1e-6)
+    model = _create_vision_transformer('deit3_tiny_patch16_224', pretrained=False, **dict(model_args, **kwargs))
+    return model
+
 def deit3_small_patch16_224(pretrained=False, **kwargs) -> VisionTransformer:
     """ DeiT-3 small model @ 224x224 from paper (https://arxiv.org/abs/2204.07118).
     ImageNet-1k weights from https://github.com/facebookresearch/deit.
