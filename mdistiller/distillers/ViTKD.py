@@ -6,7 +6,6 @@ import einops
 from ._base import Distiller
 from ._common import SimpleAdapter, get_feat_shapes, compute_mapped_layers
 
-
 class Generator(nn.Module):
     def __init__(self, dim: int):
         super().__init__()
@@ -54,16 +53,26 @@ class ViTKD(Distiller):
         feat_s_shapes, feat_t_shapes = get_feat_shapes(
             self.student, self.teacher, cfg.DATASET.INPUT_SIZE
         )
+        
         self.adapters = nn.ModuleDict({
             f'{lidx:02d}': SimpleAdapter(feat_s_shapes[lidx][-1], feat_t_shapes[lidx][-1])
             for lidx in self.layers_stu + self.m_layers_stu
         })
         self.generators = nn.ModuleDict({
-            f'{lidx:02d}': Generator(feat_t_shapes[lidx][-1])
+            f'{lidx:02d}': Generator(dim=feat_t_shapes[lidx][-1])
             for lidx in self.m_layers_stu
         })
+        # self.adapters = nn.ModuleDict({
+        #     f'{lidx:02d}': SimpleAdapter(feat_s_shapes[lidx][-1], feat_t_shapes[lidx][-1])
+        #     for lidx in self.layers_stu
+        # })
+        # self.generators = nn.ModuleDict({
+        #     f'{lidx_stu:02d}': Generator(feat_s_shapes[lidx_stu][-1], feat_t_shapes[lidx_tea][-1])
+        #     for lidx_stu, lidx_tea in zip(self.m_layers_stu, self.m_layers)
+        # })
         self.mask_tokens = nn.Parameter(
             torch.zeros(1, 1, self.teacher.embed_dim)
+            # torch.zeros(1, 1, self.student.embed_dim)
         )
 
     def get_learnable_parameters(self):
@@ -91,15 +100,17 @@ class ViTKD(Distiller):
             generator = self.generators[f'{lidx_stu:02d}']
             
             a_s = adapter(feature_student['feats'][lidx_stu])
+            # a_s = feature_student['feats'][lidx_stu]
             mask = torch.rand_like(a_s[..., 0:1], device=a_s.device) <= self.masking_ratio
-            mask = mask.expand_as(a_s)
+            mask_s = mask.expand_as(a_s)
+            mask_t = mask.expand_as(feature_teacher['feats'][lidx_tea])
             
             mask_tokens = self.mask_tokens.expand_as(a_s)
-            m_s = torch.where(mask, mask_tokens, a_s)
+            m_s = torch.where(mask_s, mask_tokens, a_s)
             
             g_s = generator(m_s)
             loss = loss + F.mse_loss(
-                g_s[mask], feature_teacher['feats'][lidx_tea][mask],
+                g_s[mask_t], feature_teacher['feats'][lidx_tea][mask_t],
             )
         
         loss = loss * self.loss_weight
