@@ -82,6 +82,7 @@ def load_distiller_from_checkpoint(
     exp_name: str,
     tag: Literal['latest', 'best']|int='latest',
     expected_arch: Literal['cnn', 'transformer']|None=None,
+    return_ckpt: bool=False,
 ):
     cfg, ckpt = get_config(exp_name, ckpt_tag=tag, load_full=True)
     student: torch.nn.Module = imagenet_model_dict[cfg.DISTILLER.STUDENT](pretrained=False)
@@ -95,7 +96,11 @@ def load_distiller_from_checkpoint(
     }
     distiller: Distiller = distiller_dict[cfg.DISTILLER.TYPE](student, teacher, cfg)
     result = distiller.load_state_dict(state_dict, strict=True)
-    return distiller, result
+    
+    if return_ckpt:
+        return distiller, result, ckpt
+    else:
+        return distiller, result
 
 def load_head_checkpoint(
     exp_name: str,

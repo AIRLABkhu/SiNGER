@@ -14,10 +14,13 @@ from .ReviewKD import ReviewKD
 from .DKD import DKD
 from .FitViT import FitViT
 from .ViTKD import ViTKD
+from .ViTKD_O import ViTKD_O
 from .AMD_mask import AMD_MASK
 from .AMD_recon import AMD_RECON
 from .AMD_norm import AMD_NORM
 from .AMD_SNER import AMD_SNER
+from .AMD_SNER_v2 import AMD_SNER_v2
+from .AMD_SNER_v3 import AMD_SNER_v3
 
 distiller_dict = {
     "NONE": Vanilla,
@@ -36,8 +39,11 @@ distiller_dict = {
     "DKD": DKD,
     "FITVIT": FitViT,
     "VITKD": ViTKD,
+    "VITKD_O": ViTKD_O,
     "AMD_MASK": AMD_MASK,
     "AMD_RECON": AMD_RECON,
     "AMD_NORM": AMD_NORM,
     "AMD_SNER": AMD_SNER,
+    "AMD_SNER_v2": AMD_SNER_v2,
+    "AMD_SNER_v3": AMD_SNER_v3,
 }
