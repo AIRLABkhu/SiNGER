@@ -266,25 +266,28 @@ class Lambda(nn.Module):
 def compute_mapped_layers(layers, teacher, student, verbose: bool=False):
     t_layers = len(teacher.blocks)
     s_layers = len(student.blocks)
-
-    try:
-        from scipy.optimize import linear_sum_assignment
-        import numpy as np
-        
-        t, s = np.meshgrid(
-            np.divide(layers, t_layers),
-            np.linspace(0, 1, s_layers),
-            indexing='ij',
-        )
-        dist = np.abs(t - s)
-        m_layers_stu = linear_sum_assignment(dist)[1].tolist()
-    except ImportError:
-        map_fact = t_layers // s_layers
-        m_layers_stu = [l // map_fact for l in layers] if map_fact != 1 else layers
-        
-    if verbose:
-        print(f"Distill Teacher {layers} to Student {m_layers_stu}")
-    return m_layers_stu
+    
+    if t_layers == s_layers:
+        return layers
+    else:
+        try:
+            from scipy.optimize import linear_sum_assignment
+            import numpy as np
+            
+            t, s = np.meshgrid(
+                np.divide(layers, t_layers),
+                np.linspace(0, 1, s_layers),
+                indexing='ij',
+            )
+            dist = np.abs(t - s)
+            m_layers_stu = linear_sum_assignment(dist)[1].tolist()
+        except ImportError:
+            map_fact = t_layers // s_layers
+            m_layers_stu = [l // map_fact for l in layers] if map_fact != 1 else layers
+            
+        if verbose:
+            print(f"Distill Teacher {layers} to Student {m_layers_stu}")
+        return m_layers_stu
 
 # for SNER ---------------------------------------------------------------------------------------------------------
 class SNERAdapter(nn.Module):
