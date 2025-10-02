@@ -5,6 +5,7 @@ from .vit import (
     vit_small_patch16_224,
     vit_base_patch16_224,
     vit_large_patch16_224,
+    vit_huge_patch16_224,
     clip_base_patch16_224,
     clip_base_patch16_224_ft_in,
     clip_xsmall_patch16_224,
@@ -33,6 +34,7 @@ imagenet_model_dict = {
     "vit_base": vit_base_patch16_224,
     "vit_base.unic": vit_base_patch16_224,
     "vit_large": vit_large_patch16_224,
+    "vit_huge": vit_huge_patch16_224,
 
     "clip_xsmall": clip_xsmall_patch16_224,
     "clip_base": clip_base_patch16_224,
