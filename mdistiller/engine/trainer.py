@@ -44,6 +44,7 @@ class BaseTrainer(object):
         IS_MASTER = bool(int(os.environ['IS_MASTER_NODE']))
         
         self.cfg = cfg
+        self.trace_loss = cfg.EXPERIMENT.TRACE_LOSS
         self.distiller = distiller
         self.train_loader = train_loader
         self.val_loader = val_loader
@@ -128,10 +129,14 @@ class BaseTrainer(object):
             self.best_acc = log_dict["test_acc"]
             if self.cfg.LOG.WANDB:
                 wandb.run.summary["best_acc"] = self.best_acc
+        # timestamping
+        from datetime import datetime
+        nowstr = datetime.now().strftime('%Y.%m.%d_%H:%M:%S')
         # worklog.txt
         with open(os.path.join(self.log_path, "worklog.txt"), "a") as writer:
             lines = [
                 "-" * 35 + os.linesep,
+                "time: {}".format(nowstr) + os.linesep,
                 "epoch: {}".format(epoch) + os.linesep,
                 "lr: {:.4f}".format(float(lr)) + os.linesep,
             ]
@@ -150,7 +155,8 @@ class BaseTrainer(object):
         # worklog.yaml
         with open(os.path.join(self.log_path, 'worklog.yaml'), 'a') as writer:
             lines = [
-                f'- epoch: {epoch}{os.linesep}',
+                f'- time: {nowstr}{os.linesep}',
+                f'  epoch: {epoch}{os.linesep}',
                 f'  lr: {float(lr):.4f}{os.linesep}',
             ]
             for k, v in log_dict.items():
@@ -282,6 +288,11 @@ class BaseTrainer(object):
             for k, v in losses_dict.items()
         }
         losses_dict['_total'] = loss.cpu().detach().numpy().mean()
+        
+        IS_MASTER = bool(int(os.environ['IS_MASTER_NODE']))
+        if IS_MASTER and self.trace_loss:
+            for key, val in losses_dict.items():
+                print(key, val.item())
             
         batch_size = len(preds_all)
         acc1, acc5 = accuracy(preds_all, target_all, topk=(1, 5))
