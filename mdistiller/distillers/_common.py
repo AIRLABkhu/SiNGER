@@ -263,13 +263,27 @@ class Lambda(nn.Module):
     def forward(self, *args, **kwargs):
         return self.fn(*args, **kwargs)
 
-def compute_mapped_layers(layers, teacher, student):
+def compute_mapped_layers(layers, teacher, student, verbose: bool=False):
     t_layers = len(teacher.blocks)
     s_layers = len(student.blocks)
-    map_fact = t_layers // s_layers
 
-    m_layers_stu = [l // map_fact for l in layers] if map_fact != 1 else layers
-    print(f"Distill Teacher {layers} to Student {m_layers_stu}")
+    try:
+        from scipy.optimize import linear_sum_assignment
+        import numpy as np
+        
+        t, s = np.meshgrid(
+            np.divide(layers, t_layers),
+            np.linspace(0, 1, s_layers),
+            indexing='ij',
+        )
+        dist = np.abs(t - s)
+        m_layers_stu = linear_sum_assignment(dist)[1].tolist()
+    except ImportError:
+        map_fact = t_layers // s_layers
+        m_layers_stu = [l // map_fact for l in layers] if map_fact != 1 else layers
+        
+    if verbose:
+        print(f"Distill Teacher {layers} to Student {m_layers_stu}")
     return m_layers_stu
 
 # for SNER ---------------------------------------------------------------------------------------------------------
@@ -307,8 +321,11 @@ class SNERAdapter(nn.Module):
         self.W_d = nn.Parameter(N.t().clone())   # [d, r]
         self.W_u = nn.Parameter(N.clone())       # [r, d]
 
-    def forward(self, A: torch.Tensor) -> torch.Tensor:
+    def forward(self, A: torch.Tensor, return_delta: bool=False) -> torch.Tensor:
         delta = (A @ self.W_d) @ self.W_u
-        return A + delta
+        if return_delta:
+            return A + delta, delta
+        else:
+            return A + delta
 
 
