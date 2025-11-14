@@ -283,26 +283,78 @@ def clip_large_patch16_224(pretrained: bool = False, **kwargs) -> VisionTransfor
 
 
 # dinov2 
-def dinov2_tiny_patch14_518(pretrained: bool = False, **kwargs) -> VisionTransformer:
+def dinov2_tiny_patch16_224(pretrained: bool = False, **kwargs) -> VisionTransformer:
     """ Non-pretrained Dinov2
     """
     model_args = dict(patch_size=14, embed_dim=192, depth=12, num_heads=3, init_values=1e-5, img_size=518)
     model = _create_vision_transformer('vit_tiny_patch16_224', pretrained=pretrained, **dict(model_args, **kwargs))
+    model.set_input_size((224, 224), (16, 16))
     return model
 
-def dinov2_small_patch14_518(pretrained: bool = False, **kwargs):
+def dinov2_small_patch16_224(pretrained: bool = False, **kwargs):
     model_args = dict(patch_size=14, embed_dim=384, depth=12, num_heads=6, init_values=1e-5, img_size=518)
     model = _create_vision_transformer('vit_small_patch14_dinov2.lvd142m', pretrained=pretrained, **dict(model_args, **kwargs))
+    model.set_input_size((224, 224), (16, 16))
     return model
 
-def dinov2_base_patch14_518(pretrained: bool = False, **kwargs):
+def dinov2_base_patch16_224(pretrained: bool = False, **kwargs):
     model_args = dict(patch_size=14, embed_dim=768, depth=12, num_heads=12, init_values=1e-5, img_size=518)
     model = _create_vision_transformer('vit_base_patch14_dinov2.lvd142m', pretrained=pretrained, **dict(model_args, **kwargs))
+    model.set_input_size((224, 224), (16, 16))
     return model
 
-def dinov2_large_patch14_518(pretrained: bool = False, **kwargs):
+def dinov2_large_patch16_224(pretrained: bool = False, **kwargs):
     model_args = dict(patch_size=14, embed_dim=1024, depth=24, num_heads=16, init_values=1e-5, img_size=518)
     model = _create_vision_transformer('vit_large_patch14_dinov2.lvd142m', pretrained=pretrained, **dict(model_args, **kwargs))
+    model.set_input_size((224, 224), (16, 16))
+    return model
+
+def vit_small_patch16_reg4_dinov2(pretrained: bool = False, **kwargs) -> VisionTransformer:
+    """ ViT-S/14 for DINOv2 w/ 4 registers
+    """
+    model_args = dict(
+        patch_size=14, embed_dim=384, depth=12, num_heads=6, init_values=1e-5,
+        reg_tokens=4, no_embed_class=True,
+    )
+    model = _create_vision_transformer('vit_small_patch14_reg4_dinov2', pretrained=pretrained, **dict(model_args, **kwargs))
+    model.set_input_size((224, 224), (16, 16))
+    return model
+
+def vit_base_patch16_reg4_dinov2(pretrained: bool = False, **kwargs) -> VisionTransformer:
+    """ ViT-B/14 for DINOv2 w/ 4 registers
+    """
+    model_args = dict(
+        patch_size=14, embed_dim=768, depth=12, num_heads=12, init_values=1e-5,
+        reg_tokens=4, no_embed_class=True,
+    )
+    model = _create_vision_transformer('vit_base_patch14_reg4_dinov2', pretrained=pretrained, **dict(model_args, **kwargs))
+    model.set_input_size((224, 224), (16, 16))
+    return model
+
+def vit_large_patch16_reg4_dinov2(pretrained: bool = False, **kwargs) -> VisionTransformer:
+    """ ViT-L/14 for DINOv2 w/ 4 registers
+    """
+    model_args = dict(
+        patch_size=14, embed_dim=1024, depth=24, num_heads=16, init_values=1e-5,
+        reg_tokens=4, no_embed_class=True,
+    )
+    model = _create_vision_transformer('vit_large_patch14_reg4_dinov2', pretrained=pretrained, **dict(model_args, **kwargs))
+    model.set_input_size((224, 224), (16, 16))
+    return model
+
+def vit_giant_patch16_reg4_dinov2(pretrained: bool = False, **kwargs) -> VisionTransformer:
+    """ ViT-G/14 for DINOv2
+    """
+    # The hidden_features of SwiGLU is calculated by:
+    # hidden_features = (int(hidden_features * 2 / 3) + 7) // 8 * 8
+    # When embed_dim=1536, hidden_features=4096
+    # With SwiGLUPacked, we need to set hidden_features = 2 * 4096 = 8192
+    model_args = dict(
+        patch_size=14, embed_dim=1536, depth=40, num_heads=24, init_values=1e-5, mlp_ratio=2.66667 * 2,
+        mlp_layer=SwiGLUPacked, act_layer=nn.SiLU, reg_tokens=4, no_embed_class=True,
+    )
+    model = _create_vision_transformer('vit_giant_patch14_reg4_dinov2', pretrained=pretrained, **dict(model_args, **kwargs))
+    model.set_input_size((224, 224), (16, 16))
     return model
 
 

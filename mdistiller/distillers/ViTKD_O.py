@@ -53,6 +53,18 @@ class ViTKDLoss(nn.Module):
         low_t = preds_T[0]
         high_s = preds_S[1]
         high_t = preds_T[1]
+        
+        if low_s.size(-2) != low_t.size(-2):  # optionally skip prefix tokens
+            n_std = low_s.size(-2)
+            cls_token = low_t[..., :1, :]
+            patch_tokens = low_t[..., -n_std+1:, :]
+            low_t = torch.cat([cls_token, patch_tokens], dim=-2)
+        
+        if high_s.size(-2) != high_t.size(-2):  # optionally skip prefix tokens
+            n_std = high_s.size(-2)
+            cls_token = high_t[..., :1, :]
+            patch_tokens = high_t[..., -n_std+1:, :]
+            high_t = torch.cat([cls_token, patch_tokens], dim=-2)
 
         B = low_s.shape[0]
         loss_mse = nn.MSELoss(reduction='sum')

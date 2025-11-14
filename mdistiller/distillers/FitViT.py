@@ -48,6 +48,13 @@ class FitViT(Distiller):
             adapter: SimpleAdapter = self.adapters[f"adapter_{m_l_stu:03d}"]
             f_s = feature_student['feats'][m_l_stu]
             f_t = feature_teacher['feats'][m_l]
+            
+            if f_s.size(1) != f_t.size(1):  # optionally skip prefix tokens
+                n_std = f_s.size(1)
+                cls_token = f_t[:, :1]
+                patch_tokens = f_t[:, -n_std+1:]
+                f_t = torch.cat([cls_token, patch_tokens], dim=1)
+            
             loss_feat = loss_feat + F.mse_loss(adapter.forward(f_s), f_t)
         loss_feat = self.feat_loss_weight * loss_feat
 

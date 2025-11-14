@@ -12,10 +12,13 @@ from .vit import (
     clip_base_patch16_224,
     clip_base_patch16_224_ft_in,
     clip_xsmall_patch16_224,
-    dinov2_tiny_patch14_518,
-    dinov2_small_patch14_518,
-    dinov2_base_patch14_518,
-    dinov2_large_patch14_518,
+    dinov2_tiny_patch16_224,
+    dinov2_small_patch16_224,
+    dinov2_base_patch16_224,
+    dinov2_large_patch16_224,
+    vit_small_patch16_reg4_dinov2,
+    vit_base_patch16_reg4_dinov2,
+    vit_large_patch16_reg4_dinov2,
     deit3_tiny_patch16_224,
     deit3_small_patch16_224,
     deit3_medium_patch16_224,
@@ -23,6 +26,12 @@ from .vit import (
     deit3_large_patch16_224,
     unic_large_patch14_336,
     unic_tiny_patch14_336,
+)
+from .eva import (
+    vit_large_patch16_dinov3,
+    vit_base_patch16_dinov3,
+    vit_small_patch16_dinov3,
+    vit_tiny_patch16_dinov3,
 )
 
 
@@ -47,10 +56,14 @@ imagenet_model_dict = {
     "clip_base": clip_base_patch16_224,
     "clip_base_ft": clip_base_patch16_224_ft_in,
     
-    "dinov2_tiny": dinov2_tiny_patch14_518,
-    "dinov2_small": dinov2_small_patch14_518,
-    "dinov2_base": dinov2_base_patch14_518,
-    "dinov2_large": dinov2_large_patch14_518,
+    "dinov2_tiny": dinov2_tiny_patch16_224,
+    "dinov2_small": dinov2_small_patch16_224,
+    "dinov2_base": dinov2_base_patch16_224,
+    "dinov2_large": dinov2_large_patch16_224,
+    
+    "dinov2_reg_small": vit_small_patch16_reg4_dinov2,
+    "dinov2_reg_base": vit_base_patch16_reg4_dinov2,
+    "dinov2_reg_large": vit_large_patch16_reg4_dinov2,
     
     "deit3_tiny": deit3_tiny_patch16_224,
     "deit3_small": deit3_small_patch16_224,
@@ -60,4 +73,9 @@ imagenet_model_dict = {
     
     "unic_tiny": unic_tiny_patch14_336,
     "unic_large": unic_large_patch14_336,
+    
+    "dinov3_large": vit_large_patch16_dinov3,
+    "dinov3_base": vit_base_patch16_dinov3,
+    "dinov3_small": vit_small_patch16_dinov3,
+    "dinov3_tiny": vit_tiny_patch16_dinov3,
 }
