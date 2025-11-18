@@ -21,8 +21,10 @@ class AMD_SNER_v3(AMD_SNER):
             f_s = feature_student["feats"][m_l_stu]# F_S^l
             f_t = feature_teacher["feats"][m_l]  # F_T^l
             
-            cls, patch = f_t[:, :1], f_t[:, -f_s.size(1)+1:]  # optionally skip prefix tokens
+            n_std = f_s.size(1)
+            cls, patch = f_t[:, :1], f_t[:, -n_std+1:]  # optionally skip prefix tokens
             patch_sner = self.sner_dict[f"sner_{m_l:03d}"](patch)
+            f_t = torch.cat((cls, patch), 1)  # F_T^l
             f_t_sner = torch.cat((cls, patch_sner), 1)  # \hat{F}_T^l
 
             # 3.1. Knowledge Distillation Loss (L_KD)
