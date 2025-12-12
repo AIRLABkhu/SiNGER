@@ -1,0 +1,37 @@
+EXPERIMENT:
+  NAME: ""
+  TAG: "singer,vit-large,vit-tiny,layer17,rank64"
+  PROJECT: "vit-baselines"
+DATASET:
+  TYPE: "imagenet"
+  NUM_WORKERS: 32
+  INPUT_SIZE: [224, 224]
+  TEST:
+    BATCH_SIZE: 128
+DISTILLER:
+  TYPE: "SiNGER"
+  TEACHER: "vit_large"
+  STUDENT: "vit_tiny"
+SOLVER:
+  BATCH_SIZE: 512
+  EPOCHS: 100
+  LR: 0.2
+  SGD:
+    MOMENTUM: 0.9
+  SCHEDULE: 
+    MULTISTEP:
+      STAGES: [30, 60, 90]
+      RATE: 0.1
+  WEIGHT_DECAY: 0.0001
+  TYPE: "SGD"
+LOG:
+  TENSORBOARD_FREQ: 50
+  SAVE_CHECKPOINT_FREQ: 10
+SiNGER:
+  M_LAYERS: [17]
+  RANK: 64
+  NULL_THRES: 0.05
+  OUTLIER_Q: 0.97
+  METHOD: 'singer'
+  LOSS:
+    FEAT_WEIGHT: 1.0
