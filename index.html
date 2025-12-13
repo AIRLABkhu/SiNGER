@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <!-- Meta tags for social media banners, these should be filled in appropriatly as they are your "business card" -->
+  <!-- Replace the content tag with appropriate information -->
+  <meta name="author" content="Geunhyeok Yu"/>
+  <meta name="description" content="SiNGER: Singular Nullspace-Guided Energy Reallocation" />
+  <meta property="og:title" content="SiNGER: Singular Nullspace-Guided Energy Reallocation" />
+  <meta property="og:description" content="SiNGER: Singular Nullspace-Guided Energy Reallocation" />
+  <meta property="og:url" content="https://github.com/AIRLABkhu/SiNGER/" />
+  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X630-->
+  <meta property="og:image" content="static/images/banner.png" />
+  <meta property="og:image:width" content="1100" />
+  <meta property="og:image:height" content="740" />
+
+  <meta name="twitter:title" content="SiNGER: Singular Nullspace-Guided Energy Reallocation">
+  <meta name="twitter:description" content="SiNGER: Singular Nullspace-Guided Energy Reallocation">
+  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X600-->
+  <meta name="twitter:image" content="static/images/banner.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- Keywords for your paper to be indexed by-->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <title>SiNGER: Singular Nullspace-Guided Energy Reallocation</title>
+  <link rel="icon" type="image/x-icon" href="static/images/air_jordan.png">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script src="static/js/bulma-carousel.min.js"></script>
+  <script src="static/js/bulma-slider.min.js"></script>
+  <script src="static/js/index.js"></script>
+</head>
+
+<body>
+
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">SiNGER: Singular Nullspace-Guided<br />Energy Reallocation</h1>
+            <div class="is-size-5 publication-authors" style="margin-bottom: 0.2em">
+              <!-- Paper authors -->
+              <span class="author-block">
+                <a href="https://ghyeok.com/" target="_blank">Geunhyeok Yu</a> <sup>1,*</sup> &ensp; 
+              </span>
+              <span class="author-block">
+                <a href="https://suunnnnnj.notion.site/Resum-969fa9085bdb47aeaa2632b27320bf7b" target="_blank">Sunjae Jeong</a> <sup>1,2,*</sup> &ensp; 
+              </span>
+              <span class="author-block">
+                <a href="https://youngyoonii.github.io/" target="_blank">Yoonyoung Choi</a> <sup>1</sup> &ensp; 
+              </span><br />
+              <span class="author-block">
+                Jaeseung Kim <sup>2</sup> &ensp; 
+              </span>
+              <span class="author-block">
+                <a href="https://sites.google.com/view/hyoseok-hwang" target="_blank">Hyoseok Hwang</a> <sup>1,&#8224</sup>
+              </span>
+            </div>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <sup>1</sup> AIRLab, Kyung Hee University &ensp; 
+                <sup>2</sup> MOBILTECH CO., LTD
+                <br />
+                <strong>arXiv:2509.20986</strong>
+            </span>
+              <span class="eql-cntrb">
+                <small><br>
+                  <sup>*</sup>Equally contributed. &ensp;
+                  <sup>&#8224</sup>Corresponding author.
+                </small>
+              </span>
+            </div>
+
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <!-- PDF link -->
+                <!-- <span class="link-block">
+                  <a href="https://openaccess.thecvf.com/content/CVPR2024/papers/Yu_A2XP_Towards_Private_Domain_Generalization_CVPR_2024_paper.pdf" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                    </span>
+                    <span>Paper</span>
+                  </a>
+                </span> -->
+
+                <!-- Supplementary PDF link -->
+                <!-- <span class="link-block"> 
+                  <a href="https://openaccess.thecvf.com/content/CVPR2024/supplemental/Yu_A2XP_Towards_Private_CVPR_2024_supplemental.pdf" target="_blank" 
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                    </span>
+                    <span>Supplementary</span>
+                  </a>
+                </span> -->
+
+                <!-- Poster PDF link -->
+                <!-- <span class="link-block"> 
+                  <a href="static/pdfs/A2XP_poster.pdf#view=fit" target="_blank" 
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                    </span>
+                    <span>Poster</span>
+                  </a>
+                </span> -->
+
+                <!-- Slides PDF link -->
+                <!-- <span class="link-block"> 
+                  <a href="static/pdfs/A2XP_slides.pdf#view=fit" target="_blank" 
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                    </span>
+                    <span>Slides</span>
+                  </a>
+                </span> -->
+
+                <!-- Presentation link -->
+                <!-- <span class="link-block"> 
+                  <a href="https://www.youtube.com/watch?v=RLb8EdYWaDk" target="_blank" 
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                    </span>
+                    <span>Presentation</span>
+                  </a>
+                </span> -->
+
+                <!-- Github link -->
+                <span class="link-block">
+                  <a href="https://github.com/AIRLABkhu/SiNGER" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code</span>
+                  </a>
+                </span>
+
+                <!-- ArXiv abstract Link -->
+                <span class="link-block">
+                  <a href="https://arxiv.org/abs/2509.20986" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                    </span>
+                    <span>arXiv</span>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Teaser image -->
+  <section class="hero teaser">
+    <div class="container is-max-desktop">
+
+      <div class="hero-body" style="text-align: center;">
+        <figure style="text-align: center;">
+          <img src="static/images/fig1a.png" alt="fail">
+          <figcaption class="content has-text-left"  style="word-break:normal">
+            <b>Figure 1.</b> From noisy supervision to meaningful transfer. SiNGER filters out artifacts in teacher representations and guides the student toward clean, interpretable, and transferable features.
+          </figcaption>
+        </figure>
+        
+        <div class="has-text-left" style="margin-top: 2em;">
+          <h5 class="title is-5" style="margin-bottom: 1em;">Contributions</h5>        
+          <ol style="padding-left: 2.4em; list-style-type:circle;">
+            <li style="padding-bottom: 0.3em;"> Propose a novel distillation framework (SiNGER) that refines teacher signals via the LoRA-based adapter with nullspace initialization to guide effective perturbations. </li>
+            <li style="padding-bottom: 0.3em;"> Analyze a fundamental limitation of naïve ViT distillation, showing degraded transfer on downstream benchmarks along with qualitative evidence.</li>
+            <li style="padding-bottom: 0.3em;"> Provide extensive ablation studies to analyze the contribution of each component in SiNGER and validate the robustness of our framework.</li>
+            <li style="padding-bottom: 0.3em;"> Demonstrate through extensive experiments that our method exceeds baseline performance across tasks and produces more interpretable feature maps.</li>
+          </ol>
+        </div>
+      </div>
+
+    </div>
+  </section>
+  <!-- End teaser video -->
+
+  <!-- Paper abstract -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p>
+              Vision Transformers are widely adopted as the backbone of vision foundation models, but they are known to produce high-norm artifacts that degrade representation quality. 
+              When knowledge distillation transfers these features to students, high-norm artifacts dominate the objective, so students overfit to artifacts and underweight informative signals, diminishing the gains from larger models. 
+              Prior work attempted to remove artifacts but encountered an inherent trade-off between artifact suppression and preserving informative signals from teachers. 
+              To address this, we introduce Singular Nullspace-Guided Energy Reallocation (SiNGER), a novel distillation framework that suppresses artifacts while preserving informative signals. 
+              The key idea is principled teacher feature refinement: during refinement, we leverage the nullspace-guided perturbation to preserve information while suppressing artifacts. 
+              Then, the refined teacher's features are distilled to a student. 
+              We implement this perturbation efficiently with a LoRA-based adapter that requires minimal structural modification. 
+              Extensive experiments show that SiNGER consistently improves student models, achieving state-of-the-art performance in multiple downstream tasks and producing clearer and more interpretable representations.            
+            </p>
+            <div style="text-align: center;">
+              <img src="static/images/fig3_lr.gif" alt="fail" width="100%" style="margin-top: 3%;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End paper abstract -->
+
+  <!-- Method carousel -->
+  <section class="hero is-small">
+    <div class="hero-body">
+      <div class="container">
+        <h2 class="title is-3">SiNGER</h2>
+        <div id="results-carousel" class="carousel results-carousel" style="text-align: center;">
+
+          <!-- Pipeline -->
+         <div class="item" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center;"> 
+              <img src="static/images/fig3.png" alt="fail" width="100%" style="margin-top: 3%;">
+              <h2 class="subtitle has-text-left" style="padding-bottom: 1%; font-size: 12pt;">
+                <b>Figure 3.</b> The overall pipeline of knowledge distillation with the SiNGER adapter at l-th layer.
+              </h2>
+        </div>
+        
+        <!-- Outlier suppression -->
+        <div class="item" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center;"> 
+          <img src="static/images/fig4a.png" alt="fail" style="margin-top: 2.1%;">
+          <h2 class="subtitle has-text-left" style="padding-bottom: 1%; font-size: 12pt">
+            <b>Figure 4a.</b> The cosine similarity between x-marked patch and every path of another feature map is visualized. 
+            In each pair, the left side is the original feature maps with artifacts, and the right side is the refined feature map.
+            In the refined feature map, the cosine similarity between x-marked patch and all other patches are visualized.
+          </h2>
+        </div>
+        
+        <!-- Info preservation -->
+        <div class="item" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center;"> 
+          <img src="static/images/fig4b.png" alt="fail" style="margin-top: 2.1%;">
+          <h2 class="subtitle has-text-left" style="padding-bottom: 1%; font-size: 12pt">
+            <b>Figure 4b.</b> The cosine similarity between x-marked patch and every patch of another feature map is visualized.
+            The original teacher's representation and the SiNGER-refined representation after the next layer are compared.
+            SiNGER preserves information after refinement with respect to the next layer.
+          </h2>
+        </div>
+        
+        <!-- Distillation -->
+        <div class="item"> 
+          <img src="static/images/fig2.png" alt="fail" >
+          <h2 class="subtitle has-text-left" style="padding-bottom: 1%; font-size: 12pt">
+            <b>Figure 2.</b> Input image, two pretrained ViTs, and three Large → Tiny distilled variants. 
+            Each panel shows similarity from the x-marked patch. 
+            SiNGER most closely preserves teacher semantics, showing the most coherent teacher-consistent similarity patterns.
+          </h2>
+        </div>
+    </div>
+  </div>
+  </div>
+  </section>
+  <!-- End method carousel -->
+
+  <!-- Experimental results -->
+  <section class="hero is-small">
+    <div class="hero-body">
+      <div class="container">
+        <h2 class="title is-3">Experimental Results</h2>
+
+        <h5 class="title is-5">Downstream Task Evaluation</h3> 
+        <p style="margin-bottom:2em;">
+          To evaluate SiNGER-distilled ViT as a VFM, we adopt the student network to a diverse set of downstream tasks. 
+          Specifically, we consider six representative benchmarks: ImageNet-1K validation set for large-scale classification, ADE-20K for semantic segmentation, NYUd-v2 for depth estimation, iNaturalist-2019 for long-tail classification, ImageNet-R and ImageNet-v2 for domain shift robustness, and four fine-grained classification datasets. <br />
+          We evaluate SiNGER on multiple teacher-student configurations spanning both the canonical ViT and the modern DeiT-III, covering a range of model scales.
+          SiNGER demonstrates consistent improvements over FitNet and ViTKD on most benchmarks.
+          On IN-val, ADE-20K, NYUd-v2, DS, and FG, SiNGER yields large gains, approaching teacher performance despite the smaller capacity.
+        </p>
+        <figure style="text-align: center; margin-bottom: 1em;">
+          <img src="static/tables/tab1.png" alt="fail" width="90%">
+        </figure>
+        <figcaption class="content has-text-left" style="word-break:normal; margin-bottom: 2em;">
+          <b>Table 1.</b> Multi-task linear evaluation results. ImageNet-1K validation (IN-val) for large-scale classification, ADE-20K for semantic segmentation, NYUd-v2 for monocular depth estimation, iNaturalist2019 (iNat2019) for long-tail learning, ImageNet-R and ImageNet-v2 for domain shift (DS), and four fine-grained classification (FG) benchmarks: FGVC-Aircraft, Oxford-IIIT Pet, Food-101, and Flowers-102 were tested. Δ rows indicate the performance gains of SiNGER, computed against the best-performing baseline among the distilled students (underlined).
+        </figcaption>
+
+        <h5 class="title is-5">Adapter Operation</h3> 
+        <p style="margin-bottom:2em;">
+          We empirically analyze how the optimized adapter operates on ImageNet-1K. To probe the coupling
+          with the next layer, we evaluate at the 17th intermediate layer. 
+          The teacher produces high-norm artifacts that are distinctly gathered as a group. We observed that SiNGER effectively draws such artifacts into the normal-patch range while preserving informative features. This results in stabilized gradient flow through the normal patches (Figure 6).
+          The 17th and 18th layers yield cosine similarity of 0.9566 and 0.9731 with negligible variance, respectively, which is clearly considered similar (Table 3).
+        </p>
+        <figure style="text-align: center; margin-bottom: 1em;">
+          <img src="static/images/fig6.png" alt="fail" width="50%">
+          <figcaption class="content has-text-centered" style="word-break:normal; margin-bottom: 2em;">
+            <b>Figure 6.</b> Patch-norm distributions of the original and refined features. 
+            Artifacts are scale-colored separately with inferno.
+          </figcaption>
+        </figure>
+        <figure style="text-align: center; margin-bottom: 1em;">
+          <img src="static/tables/tab3.png" alt="fail" width="50%">
+          <figcaption class="content has-text-centered" style="word-break:normal; margin-bottom: 2em;">
+            <b>Table 3.</b> Patch-wise cosine similarity (perimage mean over patches) on ImageNet-1K.
+          </figcaption>
+        </figure>
+
+        <h5 class="title is-5">Component Ablation</h3> 
+        <p style="margin-bottom:2em;">
+          We report four ablations, focusing on initialization, losses, hyperparameters, and distillation layers.
+        </p>
+        <figure style="text-align: center; margin-bottom: 1em;">
+          <img src="static/tables/tab4.png" alt="fail" width="50%">
+          <figcaption class="content has-text-centered" style="word-break:normal; margin-bottom: 2em;">
+            <b>Table 4.</b> Full ablation study on the nullspace initialization and loss terms.
+          </figcaption>
+        </figure>
+        <p>
+          In Table 5a, initialization markedly increases alignment to N_l+1: E_safe reaches 0.83/0.76 for φup,l at l=17, 23, and 0.55/0.58 for φdown,l. 
+          Both are under 0.27 for random initialization. 
+          This provides strong evidence that the initialization guides optimization into the null space, yielding substantially higher Esafe across layers and for both φup,l and φdown,l, which indicates successful guidance toward the null space directions. 
+          Meanwhile, Eprob remains lower or comparable under SiNGER, but our objective is not to minimize Eprob per se; rather, to ensure that the learned parameters predominantly occupy N_l+1 so as to suppress high-norm amplification while preserving useful directions. 
+          Although nullspace initialization stabilizes the refinement direction and avoids perturbations that conflict with the subsequent block, it does not lead to measurable performance improvements (Table 4).
+        </p>
+        <figure style="text-align: center; margin-bottom: 1em;">
+          <img src="static/tables/tab5a.png" alt="fail" width="50%">
+          <figcaption class="content has-text-centered" style="word-break:normal; margin-bottom: 2em;">
+            <b>Table 5a.</b> Ablation studies on the initialization method.
+          </figcaption>
+        </figure>
+        <p>
+          In Table 5b, lower DG indicates better preservation of pairwise feature relations. 
+          Compared to outlier suppression loss alone, adding information preservation loss nearly halves the DG distance (14.22 → 7.25) and substantially improves teacher-student alignment (72.36 → 41.71). 
+          Thus, the information preservation term prevents degenerate updates and maintains the relational geometry that is crucial for effective transfer. 
+          Table 4 shows that adding Loutlier yields the largest improvement on both ImageNet-1K and ADE-20K, as it directly mitigates the dominant artifact tokens that bias distillation. 
+          Information preservation loss provides additional gains by enforcing information consistency between the teacher and student. 
+          When all components are combined, the student reaches its best performance across all tasks, demonstrating that SiNGER functions most effectively as an integrated framework rather than as a set of independent mechanisms. 
+          These results highlight the individual contribution of each component.
+        </p>
+        <figure style="text-align: center; margin-bottom: 1em;">
+          <img src="static/tables/tab5b.png" alt="fail" width="50%">
+          <figcaption class="content has-text-centered" style="word-break:normal; margin-bottom: 2em;">
+            <b>Table 5b.</b> Ablation studies on the information preservation loss.
+          </figcaption>
+        </figure>
+
+      </div>
+    </div>
+  </section>
+  <!-- End experimental results -->
+
+  <!-- Paper poster -->
+  <!-- <section class="hero is-small is-light">
+    <div class="hero-body">
+      <div class="container">
+        <h2 class="title">Poster</h2>
+
+        <strong> Poster Number: 29268 </strong>
+        <iframe src="static/pdfs/A2XP_poster.pdf#view=fit" width="100%" height="700">
+        </iframe>
+
+      </div>
+    </div>
+  </section> -->
+  <!--End paper poster -->
+
+  <!-- Paper slides -->
+  <!-- <section class="hero is-small is-light">
+    <div class="hero-body">
+      <div class="container">
+        <h2 class="title">Slides</h2>
+
+        <iframe src="static/pdfs/A2XP_slides.pdf#view=fit" width="100%" height="700">
+        </iframe>
+
+      </div>
+    </div>
+  </section> -->
+  <!--End paper slides -->
+
+  <!--BibTex citation -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>@article{yu2025singer,
+  title={SiNGER: A Clearer Voice Distills Vision Transformers Further},
+  author={Yu, Geunhyeok and Jeong, Sunjae and Choi, Yoonyoung and Kim, Jaeseung and Hwang, Hyoseok},
+  journal={arXiv preprint arXiv:2509.20986},
+  year={2025}
+}</code></pre>
+    </div>
+  </section>
+  <!--End BibTex citation -->
+
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+
+            <p>
+              This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template"
+                target="_blank">Academic Project Page Template</a> which was adopted from the <a
+                href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+              You are free to borrow the of this website, we just ask that you link back to this page in the footer.
+              <br> This website is licensed under a <a rel="license"
+                href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
+                Commons Attribution-ShareAlike 4.0 International License</a>.
+            </p>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Statcounter tracking code -->
+
+  <!-- You can add a tracker to track page visits by creating an account at statcounter.com -->
+
+  <!-- End of Statcounter Code -->
+
+</body>
+
+</html>
