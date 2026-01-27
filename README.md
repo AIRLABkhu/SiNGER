@@ -1,6 +1,6 @@
 # SiNGER: A Clearer Voice Distills Vision Transformers Further
 
-The official implementation of "[SiNGER: A Clearer Voice Distills Vision Transformers Further](https://arxiv.org/abs/2509.20986)" (arXiv:2509.20986).
+The official implementation of "[SiNGER: A Clearer Voice Distills Vision Transformers Further](https://arxiv.org/abs/2509.20986)" (ICLR 2026).
 
 ## Summary
 
