@@ -106,11 +106,13 @@ python3 setup.py develop
 You can cite our work by BiBTex.
 
 ```bibtex
-@article{yu2025singer,
-  title={SiNGER: A Clearer Voice Distills Vision Transformers Further},
-  author={Yu, Geunhyeok and Jeong, Sunjae and Choi, Yoonyoung and Kim, Jaeseung and Hwang, Hyoseok},
-  journal={arXiv preprint arXiv:2509.20986},
-  year={2025}
+@inproceedings{
+yu2026singer,
+    title={Si{NGER}: A Clearer Voice Distills Vision Transformers Further},
+    author={Yu, Geunhyeok and Jeong, Sunjae and Choi, Yoonyoung and Kim, Jaeseung and Hwang, Hyoseok},
+    booktitle={The Fourteenth International Conference on Learning Representations},
+    year={2026},
+    url={https://openreview.net/forum?id=exjrxVc2yT}
 }
 ```
 
