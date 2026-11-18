@@ -146,5 +146,7 @@ def get_ade20k_dataloaders(batch_size, val_batch_size, num_workers, use_ddp, use
     train_set = ADE20k(split='train', transform=train_transform)
     num_data = len(train_set)
     train_loader = make_loader(train_set, batch_size, num_workers, shuffle=True, use_ddp=use_ddp)
-    test_loader = get_ade20k_val_loader(val_batch_size, use_ddp, mean, std, img_size=img_size)
+    test_loader = get_ade20k_val_loader(
+        val_batch_size, use_ddp, use_subset=use_subset, mean=mean, std=std, img_size=img_size,
+    )
     return train_loader, test_loader, num_data
